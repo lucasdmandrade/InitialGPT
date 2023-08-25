@@ -28,7 +28,7 @@ const MessagesList: FC<OwnProps> = ({messages}) => {
           <View style={styles.textContainer}>
             <Text style={styles.messageTitle}>
               {message.author === 'assistant'
-                ? 'SNACK PROMPT'
+                ? 'CHATGPT'
                 : message.author.toUpperCase()}
             </Text>
             <Text style={styles.title}>{message.content}</Text>

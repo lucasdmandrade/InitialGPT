@@ -30,6 +30,7 @@ const Stack = () => {
     <NavigationContainer>
       <Drawer.Navigator
         screenOptions={{
+          headerTitleContainerStyle: {marginLeft: 0},
           title: '',
           headerStyle: {backgroundColor: '#191a20'},
           headerShadowVisible: false,

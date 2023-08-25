@@ -1,5 +1,6 @@
 import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import {View, Text, StyleSheet, StyleProp, TextStyle} from 'react-native';
+import Logo from '../../../../assets/icons/SnackPrompt/Logo';
 
 type ArithmeticOperation = 'Addition' | 'Subtraction';
 
@@ -89,7 +90,7 @@ const WelcomeAnimation = () => {
             {char}
           </Text>
         ))}
-        <View style={randomColor} />
+        <Logo height={25} width={25} />
       </View>
     </View>
   );
