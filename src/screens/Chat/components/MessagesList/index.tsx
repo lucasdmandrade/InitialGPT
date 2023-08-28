@@ -1,6 +1,6 @@
 import React, {FC, useCallback, useRef} from 'react';
 import {ScrollView, StyleSheet, Text, View} from 'react-native';
-import Logo from '../../../../assets/icons/SnackPrompt/Logo';
+import Logo from '../../../../assets/icons/ChatGPT/Logo';
 import UserDefaultIcon from '../../../../assets/icons/UserDefaultIcon';
 import {OwnProps} from './types';
 

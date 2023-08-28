@@ -29,11 +29,27 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Chat'>;
 const Chat: FC<Props> = ({navigation}) => {
   const inputRef = useRef<TextInput>(null);
   const [lastMessage, setLastMessage] = useState<Message>();
+  const [isLoading, setIsLoading] = useState(false);
+  const [webSocket, setWebSocket] = useState<WebSocket>();
 
   const [chatMessage, setChatMessage] = useState('');
   const [isChatStarted, setIsChatStarted] = useState(false);
   const [chat, setChat] = useState<Message[]>([]);
 
+  const isButtonDesable = useMemo(
+    () => !chatMessage?.length && !isLoading,
+    [chatMessage, isLoading],
+  );
+  const buttonStyle = useMemo(
+    () => ({
+      ...styles.arrowUpContainer,
+      backgroundColor:
+        isButtonDesable && !isLoading
+          ? 'rgba(61, 63, 63, 0.655)'
+          : 'rgb(180, 190, 242)',
+    }),
+    [isButtonDesable, isLoading],
+  );
   const lastMessageId = useMemo(() => chat.at(-1)?.id || '', [chat]);
   const chatId = useMemo(() => chat[1]?.chatId || undefined, [chat]);
   const fullChat = useMemo<Message[]>(
@@ -108,6 +124,8 @@ const Chat: FC<Props> = ({navigation}) => {
       return;
     }
 
+    setIsLoading(true);
+
     //todo: create storage for anonymous_user_id
 
     const messageWebSocket = new WebSocket(
@@ -129,9 +147,11 @@ const Chat: FC<Props> = ({navigation}) => {
     //   console.error('WebSocket error:', error);
     // };
 
-    // messageWebSocket.onclose = event => {
-    //   console.log('WebSocket closed:', event);
-    // }
+    messageWebSocket.onclose = () => {
+      setIsLoading(false);
+    };
+
+    setWebSocket(messageWebSocket);
 
     return () => {
       if (messageWebSocket) {
@@ -144,6 +164,8 @@ const Chat: FC<Props> = ({navigation}) => {
     if (!chatMessage) {
       return;
     }
+
+    setIsLoading(true);
 
     const messageWebSocket = new WebSocket(
       'wss://api-chatgpt-dev.snackprompt.com/chats-ws/?anonymous_user_id=AU-ABC123',
@@ -163,9 +185,11 @@ const Chat: FC<Props> = ({navigation}) => {
     //   console.error('WebSocket error:', error);
     // };
 
-    // messageWebSocket.onclose = event => {
-    //   console.log('WebSocket closed:', event);
-    // };
+    messageWebSocket.onclose = () => {
+      setIsLoading(false);
+    };
+
+    setWebSocket(messageWebSocket);
 
     return () => {
       if (messageWebSocket) {
@@ -216,9 +240,16 @@ const Chat: FC<Props> = ({navigation}) => {
         </View>
 
         <TouchableOpacity
-          style={styles.arrowUpContainer}
-          onPress={sendMessageAndCleanInput}>
-          <ArrowUp width={24} height={24} color={'#ffffff4c'} />
+          style={buttonStyle}
+          onPress={
+            isLoading ? () => webSocket?.close() : sendMessageAndCleanInput
+          }
+          disabled={isButtonDesable}>
+          {isLoading ? (
+            <View style={styles.square} />
+          ) : (
+            <ArrowUp width={24} height={24} color={'#ffffffcc'} />
+          )}
         </TouchableOpacity>
       </View>
     </View>
@@ -258,7 +289,7 @@ const styles = StyleSheet.create({
   arrowUpContainer: {
     width: 38,
     height: 38,
-    backgroundColor: 'rgba(61, 63, 63, 0.655)',
+    backgroundColor: 'rgb(180, 190, 242)',
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 100,
@@ -267,6 +298,11 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  square: {
+    width: 15,
+    height: 15,
+    backgroundColor: '#ffffffcc',
   },
 });
 

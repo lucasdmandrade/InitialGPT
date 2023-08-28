@@ -4,20 +4,8 @@ import Logo from '../../../../assets/icons/SnackPrompt/Logo';
 
 type ArithmeticOperation = 'Addition' | 'Subtraction';
 
-const generateRandomColor = () => {
-  const randomColor = `#${Math.floor(Math.random() * 16777215).toString(16)}`;
-  return randomColor;
-};
-
 const WelcomeAnimation = () => {
   const text = useMemo(() => 'Snack Prompt ', []);
-  const randomColor = useMemo(
-    () => ({
-      ...styles.ball,
-      backgroundColor: generateRandomColor(),
-    }),
-    [],
-  );
 
   const [counter, setCounter] = useState(0);
   const [arithmeticOperation, setArithmeticOperation] =
@@ -84,14 +72,13 @@ const WelcomeAnimation = () => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.textContainer}>
-        {text.split('').map((char, index) => (
-          <Text key={index} style={chartStyle[index]}>
-            {char}
-          </Text>
-        ))}
-        <Logo height={25} width={25} />
-      </View>
+      {text.split('').map((char, index) => (
+        <Text key={index} style={chartStyle[index]}>
+          {char}
+        </Text>
+      ))}
+
+      <Logo height={25} width={25} />
     </View>
   );
 };
@@ -102,17 +89,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  ball: {
-    width: 30,
-    height: 30,
-    backgroundColor: 'yellow',
-    borderRadius: 25,
-  },
   textContainer: {
     flexDirection: 'row',
   },
   appName: {
-    fontSize: 24,
+    fontSize: 26,
     fontWeight: 'bold',
     color: '#fff',
   },
