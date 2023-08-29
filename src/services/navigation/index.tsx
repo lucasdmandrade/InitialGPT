@@ -6,6 +6,7 @@ import {
 } from '@react-navigation/drawer';
 import HamburgerButton from '../../assets/HamburgerButton';
 import Chat from '../../screens/Chat';
+import HeaderRigthButtons from '../../screens/Chat/components/HeaderRigthButtons';
 
 export type RootStackParamList = {
   Chat: undefined;
@@ -26,10 +27,14 @@ const Stack = () => {
     [],
   );
 
+  //() => <Plus height={20} width={20} color="white" />
+
   return (
     <NavigationContainer>
       <Drawer.Navigator
         screenOptions={{
+          headerRight: HeaderRigthButtons,
+          headerRightContainerStyle: {marginRight: 15},
           headerTitleContainerStyle: {marginLeft: 0},
           title: '',
           headerStyle: {backgroundColor: '#191a20'},

@@ -28,6 +28,8 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Chat'>;
 
 const Chat: FC<Props> = ({navigation}) => {
   const inputRef = useRef<TextInput>(null);
+
+  const [inputHeight, setInputHeight] = useState<number>();
   const [lastMessage, setLastMessage] = useState<Message>();
   const [isLoading, setIsLoading] = useState(false);
   const [webSocket, setWebSocket] = useState<WebSocket>();
@@ -56,6 +58,14 @@ const Chat: FC<Props> = ({navigation}) => {
     () => (lastMessage ? ([...chat, lastMessage] as Message[]) : chat),
     [chat, lastMessage],
   );
+
+  const stopWebSocket = useCallback(() => {
+    webSocket?.send(
+      JSON.stringify({
+        close: true,
+      }),
+    );
+  }, [webSocket]);
 
   const userMessageFactory = useCallback(
     (message: string) => {
@@ -135,7 +145,7 @@ const Chat: FC<Props> = ({navigation}) => {
     messageWebSocket.onopen = () => {
       messageWebSocket.send(
         JSON.stringify({
-          parent_id: lastMessageId,
+          parentId: lastMessageId,
           message: chatMessage,
         }),
       );
@@ -148,6 +158,8 @@ const Chat: FC<Props> = ({navigation}) => {
     // };
 
     messageWebSocket.onclose = () => {
+      setLastMessage(undefined);
+
       setIsLoading(false);
     };
 
@@ -158,7 +170,13 @@ const Chat: FC<Props> = ({navigation}) => {
         messageWebSocket.close();
       }
     };
-  }, [chatId, chatMessage, handleWebsockerMessage, lastMessageId]);
+  }, [
+    chatId,
+    chatMessage,
+    handleWebsockerMessage,
+    lastMessageId,
+    setLastMessage,
+  ]);
 
   const newChatWebSocket = useCallback(() => {
     if (!chatMessage) {
@@ -185,7 +203,8 @@ const Chat: FC<Props> = ({navigation}) => {
     //   console.error('WebSocket error:', error);
     // };
 
-    messageWebSocket.onclose = () => {
+    messageWebSocket.onclose = (event: WebSocketCloseEvent) => {
+      console.log('event', event);
       setIsLoading(false);
     };
 
@@ -226,10 +245,14 @@ const Chat: FC<Props> = ({navigation}) => {
       )}
 
       <View style={styles.footer}>
-        <View style={styles.inputArea}>
+        <View style={[styles.inputArea, {height: inputHeight}]}>
           <VoiceTranscriber messageSetter={setChatMessage} />
 
           <TextInput
+            multiline={true}
+            onContentSizeChange={event => {
+              setInputHeight(event.nativeEvent.contentSize.height);
+            }}
             ref={inputRef}
             style={styles.inputText}
             placeholder="Message"
@@ -241,9 +264,7 @@ const Chat: FC<Props> = ({navigation}) => {
 
         <TouchableOpacity
           style={buttonStyle}
-          onPress={
-            isLoading ? () => webSocket?.close() : sendMessageAndCleanInput
-          }
+          onPress={isLoading ? () => stopWebSocket : sendMessageAndCleanInput}
           disabled={isButtonDesable}>
           {isLoading ? (
             <View style={styles.square} />
@@ -270,11 +291,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   inputText: {
+    flex: 1,
     color: '#ffffff99',
     fontSize: 16,
     marginLeft: 10,
-    marginRight: 15,
-    width: '100%',
+    paddingRight: 5,
   },
   inputArea: {
     flex: 1,
