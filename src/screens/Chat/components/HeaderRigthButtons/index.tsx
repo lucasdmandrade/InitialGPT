@@ -17,14 +17,14 @@ import {useNavigation} from '@react-navigation/native';
 import {RootStackParamList} from '../../../../services/navigation';
 
 const HeaderRigthButtons = () => {
-  const teste = useNavigation<StackNavigationProp<RootStackParamList>>();
+  const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
 
   return (
     <View style={{flexDirection: 'row'}}>
       <TouchableOpacity
         style={{marginRight: 25}}
         onPress={() => {
-          teste.reset({
+          navigation.reset({
             index: 0,
             routes: [{name: 'Chat'}],
           });
@@ -42,7 +42,7 @@ const HeaderRigthButtons = () => {
             backgroundColor: '#2d2f39',
           }}>
           <MenuOption
-            onSelect={() => console.log('Save')}
+            onSelect={() => navigation.navigate('ChatDetails')}
             style={{flexDirection: 'row'}}>
             <Information height={20} width={20} color="white" />
             <Text style={{color: 'white', marginLeft: 5}}>Chat Details</Text>
