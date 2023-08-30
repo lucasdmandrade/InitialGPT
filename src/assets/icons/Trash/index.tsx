@@ -17,6 +17,7 @@ const Trash: FC<Props> = ({width, height, color}) => (
       strokeWidth={2}
       strokeLinecap="round"
       strokeLinejoin="round"
+      fill="transparent"
     />
   </Svg>
 );
