@@ -14,6 +14,8 @@ import MessagesList from './components/MessagesList';
 import VoiceTranscriber from './components/VoiceTranscriber';
 import WelcomeAnimation from './components/WelcomeAnimation';
 import {RootStackParamList} from '../../services/navigation';
+import FullScreenInput from './components/FullScreenInput';
+import Maximize from '../../assets/icons/arrows/Maximize';
 
 interface Message {
   author: string;
@@ -29,6 +31,7 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Chat'>;
 const Chat: FC<Props> = ({navigation}) => {
   const inputRef = useRef<TextInput>(null);
 
+  const [isModalVisible, setIsModalVisible] = useState(false);
   const [inputHeight, setInputHeight] = useState<number>();
   const [lastMessage, setLastMessage] = useState<Message>();
   const [isLoading, setIsLoading] = useState(false);
@@ -51,6 +54,10 @@ const Chat: FC<Props> = ({navigation}) => {
           : 'rgb(180, 190, 242)',
     }),
     [isButtonDesable, isLoading],
+  );
+  const isOpenModalVisible = useMemo(
+    () => inputHeight && inputHeight > 70,
+    [inputHeight],
   );
   const lastMessageId = useMemo(() => chat.at(-1)?.id || '', [chat]);
   const chatId = useMemo(() => chat[1]?.chatId || undefined, [chat]);
@@ -236,6 +243,13 @@ const Chat: FC<Props> = ({navigation}) => {
 
   return (
     <View style={styles.container}>
+      <FullScreenInput
+        isModalVisible={isModalVisible}
+        onChangeText={setChatMessage}
+        text={chatMessage}
+        onPress={sendMessageAndCleanInput}
+        closeInput={() => setIsModalVisible(false)}
+      />
       {!chat.length ? (
         <View style={styles.iconContainer}>
           <WelcomeAnimation />
@@ -262,16 +276,24 @@ const Chat: FC<Props> = ({navigation}) => {
           />
         </View>
 
-        <TouchableOpacity
-          style={buttonStyle}
-          onPress={isLoading ? () => stopWebSocket : sendMessageAndCleanInput}
-          disabled={isButtonDesable}>
-          {isLoading ? (
-            <View style={styles.square} />
-          ) : (
-            <ArrowUp width={24} height={24} color={'#ffffffcc'} />
+        <View style={styles.inputButtonsContainerr}>
+          {isOpenModalVisible && (
+            <TouchableOpacity onPress={() => setIsModalVisible(true)}>
+              <Maximize width={22} height={22} color={'#ffffffcc'} />
+            </TouchableOpacity>
           )}
-        </TouchableOpacity>
+
+          <TouchableOpacity
+            style={buttonStyle}
+            onPress={isLoading ? () => stopWebSocket : sendMessageAndCleanInput}
+            disabled={isButtonDesable}>
+            {isLoading ? (
+              <View style={styles.square} />
+            ) : (
+              <ArrowUp width={24} height={24} color={'#ffffffcc'} />
+            )}
+          </TouchableOpacity>
+        </View>
       </View>
     </View>
   );
@@ -314,6 +336,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 100,
+    marginTop: 10,
   },
   iconContainer: {
     flex: 1,
@@ -324,6 +347,9 @@ const styles = StyleSheet.create({
     width: 15,
     height: 15,
     backgroundColor: '#ffffffcc',
+  },
+  inputButtonsContainerr: {
+    alignItems: 'center',
   },
 });
 
