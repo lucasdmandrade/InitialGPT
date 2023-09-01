@@ -61,7 +61,7 @@ const EditTitleModal: FC<OwnProps> = ({title, chatId, setTitle}) => {
             ref={inputRef}
             mode="outlined"
             textColor="white"
-            label="Newname"
+            label="New name"
             style={styles.input}
             outlineColor="rgb(180, 190, 242)"
             activeOutlineColor="rgb(180, 190, 242)"

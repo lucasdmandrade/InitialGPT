@@ -34,3 +34,7 @@ export const editTitle = async (id: string, title: string) => {
     title,
   });
 };
+
+export const deleteChat = async (id: string) => {
+  return await gptApi.delete(`/chats/${id}/?anonymous_user_id=AU-ABC123`);
+};
