@@ -15,6 +15,9 @@ import Plus from '../../../../assets/icons/Plus';
 import Trash from '../../../../assets/icons/Trash';
 import {useNavigation} from '@react-navigation/native';
 import {RootStackParamList} from '../../../../services/navigation';
+import changeTitleEmitter, {
+  EVENTS,
+} from '../../../../services/events/ChangeTitleModalEmitter';
 
 const HeaderRigthButtons = () => {
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
@@ -28,7 +31,6 @@ const HeaderRigthButtons = () => {
             index: 0,
             routes: [{name: 'Chat'}],
           });
-          console.log('aqui');
         }}>
         <Plus height={20} width={20} color="white" />
       </TouchableOpacity>
@@ -49,7 +51,7 @@ const HeaderRigthButtons = () => {
           </MenuOption>
 
           <MenuOption
-            onSelect={() => console.log('Save')}
+            onSelect={() => changeTitleEmitter.emit(EVENTS.openModal)}
             style={{flexDirection: 'row'}}>
             <Pencil height={20} width={20} color="white" />
             <Text style={{color: 'white', marginLeft: 5}}>Rename</Text>

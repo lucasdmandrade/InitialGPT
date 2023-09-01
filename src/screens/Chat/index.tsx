@@ -16,6 +16,7 @@ import WelcomeAnimation from './components/WelcomeAnimation';
 import {RootStackParamList} from '../../services/navigation';
 import FullScreenInput from './components/FullScreenInput';
 import Maximize from '../../assets/icons/arrows/Maximize';
+import EditTitleModal from './components/EditTitleModal';
 
 interface Message {
   author: string;
@@ -31,6 +32,7 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Chat'>;
 const Chat: FC<Props> = ({navigation}) => {
   const inputRef = useRef<TextInput>(null);
 
+  const [chatTitle, setChatTitle] = useState('');
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [inputHeight, setInputHeight] = useState<number>();
   const [lastMessage, setLastMessage] = useState<Message>();
@@ -113,6 +115,7 @@ const Chat: FC<Props> = ({navigation}) => {
         const message = JSON.parse(e.data);
 
         if (message?.title) {
+          setChatTitle(message.title);
           return navigation.setOptions({title: message.title});
         }
 
@@ -146,7 +149,7 @@ const Chat: FC<Props> = ({navigation}) => {
     //todo: create storage for anonymous_user_id
 
     const messageWebSocket = new WebSocket(
-      `wss://api-chatgpt-dev.snackprompt.com/chats/${chatId}/messages/ws/?anonymous_user_id=AU-ABC123`,
+      `${process.env.GPT_API}/chats/${chatId}/messages/ws/?anonymous_user_id=AU-ABC123`,
     );
 
     messageWebSocket.onopen = () => {
@@ -193,7 +196,7 @@ const Chat: FC<Props> = ({navigation}) => {
     setIsLoading(true);
 
     const messageWebSocket = new WebSocket(
-      'wss://api-chatgpt-dev.snackprompt.com/chats-ws/?anonymous_user_id=AU-ABC123',
+      `${process.env.GPT_API}/chats-ws/?anonymous_user_id=AU-ABC123`,
     );
 
     messageWebSocket.onopen = () => {
@@ -210,8 +213,7 @@ const Chat: FC<Props> = ({navigation}) => {
     //   console.error('WebSocket error:', error);
     // };
 
-    messageWebSocket.onclose = (event: WebSocketCloseEvent) => {
-      console.log('event', event);
+    messageWebSocket.onclose = () => {
       setIsLoading(false);
     };
 
@@ -250,6 +252,13 @@ const Chat: FC<Props> = ({navigation}) => {
         onPress={sendMessageAndCleanInput}
         closeInput={() => setIsModalVisible(false)}
       />
+
+      <EditTitleModal
+        title={chatTitle}
+        chatId={chatId}
+        setTitle={navigation.setOptions}
+      />
+
       {!chat.length ? (
         <View style={styles.iconContainer}>
           <WelcomeAnimation />

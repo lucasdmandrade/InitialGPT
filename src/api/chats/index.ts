@@ -28,6 +28,9 @@ export const newMessage = async (chatMessage: string, id: string) => {
   );
 };
 
-export const messageStream = (id: string) => {
-  return new WebSocket(`/chats/?id=${id}/messages`);
+export const editTitle = async (id: string, title: string) => {
+  console.log(id);
+  return await gptApi.patch(`/chats/${id}/?anonymous_user_id=AU-ABC123`, {
+    title,
+  });
 };
