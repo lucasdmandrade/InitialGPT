@@ -17,6 +17,10 @@ import {RootStackParamList} from '../../services/navigation';
 import FullScreenInput from './components/FullScreenInput';
 import Maximize from '../../assets/icons/arrows/Maximize';
 import EditTitleModal from './components/EditTitleModal';
+import deleteChatEmittter, {
+  EVENTS,
+} from '../../services/events/DeletChatEmitter';
+import {deleteChat} from '../../api/chats';
 
 interface Message {
   author: string;
@@ -75,6 +79,14 @@ const Chat: FC<Props> = ({navigation}) => {
     },
     [navigation],
   );
+
+  const excludeChat = useCallback((chatId: string) => {
+    try {
+      deleteChat(chatId);
+    } catch (e) {
+      console.log(e);
+    }
+  }, []);
 
   const stopWebSocket = useCallback(() => {
     webSocket?.send(
@@ -249,6 +261,14 @@ const Chat: FC<Props> = ({navigation}) => {
   useEffect(() => {
     inputRef.current?.focus();
   }, []);
+
+  useEffect(() => {
+    deleteChatEmittter.on(EVENTS.deletChat, excludeChat);
+
+    return () => {
+      deleteChatEmittter.off(EVENTS.deletChat);
+    };
+  }, [excludeChat]);
 
   return (
     <View style={styles.container}>

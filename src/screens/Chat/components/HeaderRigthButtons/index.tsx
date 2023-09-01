@@ -18,6 +18,9 @@ import {RootStackParamList} from '../../../../services/navigation';
 import changeTitleEmitter, {
   EVENTS,
 } from '../../../../services/events/ChangeTitleModalEmitter';
+import deleteChatEmittter, {
+  EVENTS as DELET_EVENT,
+} from '../../../../services/events/DeletChatEmitter';
 
 const HeaderRigthButtons = () => {
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
@@ -58,7 +61,7 @@ const HeaderRigthButtons = () => {
           </MenuOption>
 
           <MenuOption
-            onSelect={() => console.log('Save')}
+            onSelect={() => deleteChatEmittter.emit(DELET_EVENT.deletChat)}
             style={{flexDirection: 'row'}}>
             <Trash height={20} width={20} color="white" />
             <Text style={{color: 'white', marginLeft: 5}}>Delete</Text>
