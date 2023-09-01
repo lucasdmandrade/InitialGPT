@@ -68,6 +68,14 @@ const Chat: FC<Props> = ({navigation}) => {
     [chat, lastMessage],
   );
 
+  const changeTitle = useCallback(
+    (newTitle: string) => {
+      setChatTitle(newTitle);
+      navigation.setOptions({title: newTitle});
+    },
+    [navigation],
+  );
+
   const stopWebSocket = useCallback(() => {
     webSocket?.send(
       JSON.stringify({
@@ -115,8 +123,7 @@ const Chat: FC<Props> = ({navigation}) => {
         const message = JSON.parse(e.data);
 
         if (message?.title) {
-          setChatTitle(message.title);
-          return navigation.setOptions({title: message.title});
+          return changeTitle(message.title);
         }
 
         setLastMessage(undefined);
@@ -132,9 +139,9 @@ const Chat: FC<Props> = ({navigation}) => {
     },
     [
       assistantMessageFactory,
+      changeTitle,
       chatMessage,
       increaseChatNewMessages,
-      navigation,
       userMessageFactory,
     ],
   );
@@ -256,7 +263,7 @@ const Chat: FC<Props> = ({navigation}) => {
       <EditTitleModal
         title={chatTitle}
         chatId={chatId}
-        setTitle={navigation.setOptions}
+        setTitle={changeTitle}
       />
 
       {!chat.length ? (

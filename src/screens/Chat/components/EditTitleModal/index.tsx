@@ -1,4 +1,3 @@
-import {NativeStackNavigationOptions} from '@react-navigation/native-stack';
 import React, {FC, useCallback, useEffect, useRef, useState} from 'react';
 import {
   Modal,
@@ -16,7 +15,7 @@ import changeTitleEmitter, {
 interface OwnProps {
   title: string;
   chatId?: string;
-  setTitle: (options: Partial<NativeStackNavigationOptions>) => void;
+  setTitle: (newTitle: string) => void;
 }
 
 const EditTitleModal: FC<OwnProps> = ({title, chatId, setTitle}) => {
@@ -40,7 +39,7 @@ const EditTitleModal: FC<OwnProps> = ({title, chatId, setTitle}) => {
     try {
       editTitle(chatId, title);
     } finally {
-      setTitle({title: newTitle});
+      setTitle(newTitle);
       setIsVisible(false);
     }
   }, [chatId, newTitle, setTitle, title]);
