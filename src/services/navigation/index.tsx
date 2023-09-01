@@ -8,8 +8,10 @@ import HamburgerButton from '../../assets/HamburgerButton';
 import Chat from '../../screens/Chat';
 import HeaderRigthButtons from '../../screens/Chat/components/HeaderRigthButtons';
 import ChatDetails from '../../screens/ChatDetails';
+import SingIn from '../../screens/SingIn';
 
 export type RootStackParamList = {
+  SingIn: undefined;
   Chat: undefined;
   ChatDetails: undefined;
 };
@@ -32,6 +34,14 @@ const Stack = () => {
   return (
     <NavigationContainer>
       <Drawer.Navigator drawerContent={drawerContent}>
+        <Drawer.Screen
+          name="SingIn"
+          component={SingIn}
+          options={{
+            header: () => undefined,
+          }}
+        />
+
         <Drawer.Screen
           name="Chat"
           component={Chat}
