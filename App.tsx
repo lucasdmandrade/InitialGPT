@@ -1,4 +1,5 @@
 import React from 'react';
+import {firebase} from '@react-native-firebase/auth';
 import {StatusBar} from 'react-native';
 import changeNavigationBarColor from 'react-native-navigation-bar-color';
 import {MenuProvider} from 'react-native-popup-menu';

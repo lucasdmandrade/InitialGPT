@@ -9,11 +9,13 @@ import Chat from '../../screens/Chat';
 import HeaderRigthButtons from '../../screens/Chat/components/HeaderRigthButtons';
 import ChatDetails from '../../screens/ChatDetails';
 import SingIn from '../../screens/SingIn';
+import WebView from '../../screens/WebView';
 
 export type RootStackParamList = {
   SingIn: undefined;
   Chat: undefined;
   ChatDetails: undefined;
+  WebView: undefined;
 };
 
 const Drawer = createDrawerNavigator<RootStackParamList>();
@@ -34,6 +36,7 @@ const Stack = () => {
   return (
     <NavigationContainer>
       <Drawer.Navigator drawerContent={drawerContent}>
+        {/* <Drawer.Screen name="WebView" component={WebView} /> */}
         <Drawer.Screen
           name="SingIn"
           component={SingIn}

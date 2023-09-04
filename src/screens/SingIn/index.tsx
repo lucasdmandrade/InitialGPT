@@ -1,17 +1,37 @@
 import React, {useState} from 'react';
 import {useNavigation} from '@react-navigation/native';
-import {Button, Text, TextInput, View} from 'react-native';
+import {
+  Alert,
+  Button,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import auth from '@react-native-firebase/auth';
-import {TouchableOpacity} from 'react-native-gesture-handler';
+import {
+  GoogleSignin,
+  GoogleSigninButton,
+  statusCodes,
+} from '@react-native-community/google-signin';
 import WelcomeAnimation from '../Chat/components/WelcomeAnimation';
 import Google from '../../assets/icons/Google';
 import Apple from '../../assets/icons/Apple';
 import Mail from '../../assets/icons/Mail';
+import {
+  appleAuth,
+  AppleRequestOperation,
+} from '@invertase/react-native-apple-authentication';
 
 const SingnIn = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const navigation = useNavigation();
+
+  GoogleSignin.configure({
+    webClientId: process.env.WEB_CLIENT_ID,
+    offlineAccess: false,
+  });
 
   const handleLogin = async () => {
     try {
@@ -23,21 +43,66 @@ const SingnIn = () => {
     }
   };
 
+  const handleGoogleLogin = async () => {
+    try {
+      // Inicie o processo de login com o Google
+      const {idToken} = await GoogleSignin.signIn();
+
+      console.log(idToken);
+
+      // Crie uma credencial do Google a partir do token
+      const googleCredential = auth.GoogleAuthProvider.credential(idToken);
+
+      // Faça o login com a credencial do Google no Firebase
+      await auth().signInWithCredential(googleCredential);
+
+      // Se o login for bem-sucedido, você pode redirecionar o usuário para outra tela aqui.
+      console.log(
+        'Usuário logado com sucesso com o Google',
+        googleCredential,
+        idToken,
+      );
+    } catch (error) {
+      console.error('Erro ao fazer login com o Google', error);
+    }
+  };
+
+  const signInWithApple = async () => {
+    try {
+      // Crie uma solicitação de autenticação da Apple
+      const appleAuthRequestResponse = await appleAuth.performRequest();
+
+      // Crie um token de ID de usuário
+      const {identityToken} = appleAuthRequestResponse;
+      const appleCredential = auth.AppleAuthProvider.credential(identityToken);
+
+      // Faça login no Firebase com as credenciais da Apple
+      await auth().signInWithCredential(appleCredential);
+    } catch (error) {
+      console.log(error);
+      if (error.code === 'ERR_CANCELED') {
+        // O usuário cancelou a operação de login da Apple
+      } else {
+        Alert.alert('Erro', 'Não foi possível fazer login com a Apple.');
+      }
+    }
+  };
+
   return (
     <View style={{flex: 1, justifyContent: 'flex-end', backgroundColor: 'red'}}>
       <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
-        <WelcomeAnimation />
+        <WelcomeAnimation text={['Snack Prompt ', 'Join us', 'teste']} />
       </View>
 
       <View
         style={{
           backgroundColor: '#dedede',
-          marginTop: 25,
           borderTopEndRadius: 25,
           borderTopLeftRadius: 25,
           padding: 15,
         }}>
         <TouchableOpacity
+          onPress={handleGoogleLogin}
           style={{
             flexDirection: 'row',
             backgroundColor: 'black',
@@ -54,6 +119,7 @@ const SingnIn = () => {
         </TouchableOpacity>
 
         <TouchableOpacity
+          onPress={signInWithApple}
           style={{
             flexDirection: 'row',
             backgroundColor: '#c4c6ca',
@@ -81,7 +147,7 @@ const SingnIn = () => {
           }}>
           <Mail height={20} width={20} color="black" />
           <Text style={{color: 'black', fontSize: 16, marginLeft: 10}}>
-            Continue with email
+            Sign up with email
           </Text>
         </TouchableOpacity>
 
