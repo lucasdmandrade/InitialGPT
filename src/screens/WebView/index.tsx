@@ -1,12 +1,10 @@
 import React, {useRef} from 'react';
-import {View, StyleSheet, Linking} from 'react-native';
+import {View, StyleSheet, Alert, Button} from 'react-native';
 import DeviceInfo from 'react-native-device-info';
-import {WebView} from 'react-native-webview';
+import InAppBrowser from 'react-native-inappbrowser-reborn';
 
 const ExternalPage = () => {
-  const webViewRef = useRef(null);
-
-  console.log(DeviceInfo.getUniqueId());
+  console.log('aqui', DeviceInfo.getUniqueId());
 
   // const openGoogleChrome = () => {
   //   Linking.openURL(
@@ -14,15 +12,33 @@ const ExternalPage = () => {
   //   ); // Substitua com o URL que deseja abrir
   // };
 
+  const openLink = async () => {
+    try {
+      await InAppBrowser.openAuth(
+        'https://platform.openai.com/login?launch?redirect_uri=${https://google.com}',
+        'meuapp://Chat',
+        {
+          browserPackage: 'com.android.chrome',
+        },
+      ).then(response => console.log('teste', response));
+    } catch (error) {
+      Alert.alert(error.message);
+    }
+  };
+
   return (
     <View style={styles.container}>
-      <WebView
+      <Button title="teste" onPress={() => openLink()} />
+      {/* <WebView
+        nativeConfig={{
+          component: Teste,
+        }}
         ref={webViewRef}
         source={{
-          uri: 'https://auth0.openai.com/u/login/identifier?state=hKFo2SBqVHVyY2RreFhtUGJ4WTdodFRzTWxya1hOTDdMYWpCYqFur3VuaXZlcnNhbC1sb2dpbqN0aWTZIFlnZXJTY0hCbUY3MzNZUUE0dE9FdjBXZU1FY0xqa3djo2NpZNkgZEJQWVBIWDh4R1R1ZXBOaFhaSkN5Y3dzeXN0RHN3N1k',
+          uri: 'https://auth0.openai.com/u/login',
         }}
         style={styles.container}
-      />
+      /> */}
     </View>
   );
 };

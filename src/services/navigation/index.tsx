@@ -33,8 +33,17 @@ const Stack = () => {
     [],
   );
 
+  const linking = {
+    prefixes: ['meuapp://', 'https://meuapp.com'],
+    config: {
+      screens: {
+        Home: 'Chat',
+      },
+    },
+  };
+
   return (
-    <NavigationContainer>
+    <NavigationContainer linking={linking}>
       <Drawer.Navigator drawerContent={drawerContent}>
         {/* <Drawer.Screen name="WebView" component={WebView} /> */}
         <Drawer.Screen

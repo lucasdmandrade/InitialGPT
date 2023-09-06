@@ -288,7 +288,7 @@ const Chat: FC<Props> = ({navigation}) => {
 
       {!chat.length ? (
         <View style={styles.iconContainer}>
-          <WelcomeAnimation text={['Snack Prompt ']} />
+          <WelcomeAnimation text={['Snack Prompt ']} disableBackgroung />
         </View>
       ) : (
         <MessagesList messages={fullChat} />
@@ -378,6 +378,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    width: '100%',
   },
   square: {
     width: 15,

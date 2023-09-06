@@ -8,7 +8,10 @@ type WelcomeAnimationProps = {
   text: string[];
 };
 
-const WelcomeAnimation: React.FC<WelcomeAnimationProps> = ({text}) => {
+const WelcomeAnimation: React.FC<WelcomeAnimationProps> = ({
+  text,
+  disableBackgroung,
+}) => {
   const [backgroundColor, setBackgroundColor] = useState('#FF5733');
   const [counter, setCounter] = useState(0);
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
@@ -66,7 +69,6 @@ const WelcomeAnimation: React.FC<WelcomeAnimationProps> = ({text}) => {
   );
 
   useEffect(() => {
-    console.log(counter);
     if (counter < 0) {
       return;
     }
@@ -84,7 +86,6 @@ const WelcomeAnimation: React.FC<WelcomeAnimationProps> = ({text}) => {
 
     if (counterNewValue < 0) {
       if (currentWordIndex < text.length - 1) {
-        console.log('aqui');
         setArithmeticOperation('Addition');
         setCurrentWordIndex(currentWordIndex + 1);
         setCounter(0);
@@ -102,13 +103,12 @@ const WelcomeAnimation: React.FC<WelcomeAnimationProps> = ({text}) => {
     easing: () => 1,
   });
 
-  // useEffect(() => {
-  //   setBackgroundColor(randomColor);
-  // }, [randomColor]);
-
   return (
     <Animated.View
-      style={[styles.container, {backgroundColor: interpolatedColor}]}>
+      style={[
+        styles.container,
+        disableBackgroung || {backgroundColor: interpolatedColor},
+      ]}>
       {text[currentWordIndex].split('').map((char, index) => (
         <Text key={index} style={chartStyle[index]}>
           {char}

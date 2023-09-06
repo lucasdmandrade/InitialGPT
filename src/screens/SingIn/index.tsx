@@ -9,24 +9,25 @@ import {
   View,
 } from 'react-native';
 import auth from '@react-native-firebase/auth';
-import {
-  GoogleSignin,
-  GoogleSigninButton,
-  statusCodes,
-} from '@react-native-community/google-signin';
+import {GoogleSignin} from '@react-native-community/google-signin';
 import WelcomeAnimation from '../Chat/components/WelcomeAnimation';
 import Google from '../../assets/icons/Google';
 import Apple from '../../assets/icons/Apple';
 import Mail from '../../assets/icons/Mail';
 import {
   appleAuth,
+  appleAuthAndroid,
   AppleRequestOperation,
 } from '@invertase/react-native-apple-authentication';
+import InAppBrowser from 'react-native-inappbrowser-reborn';
+import {StackNavigationProp} from '@react-navigation/stack';
+import {RootStackParamList} from '../../services/navigation';
 
 const SingnIn = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const navigation = useNavigation();
+
+  const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
 
   GoogleSignin.configure({
     webClientId: process.env.WEB_CLIENT_ID,
@@ -57,11 +58,9 @@ const SingnIn = () => {
       await auth().signInWithCredential(googleCredential);
 
       // Se o login for bem-sucedido, você pode redirecionar o usuário para outra tela aqui.
-      console.log(
-        'Usuário logado com sucesso com o Google',
-        googleCredential,
-        idToken,
-      );
+      console.log('Usuário logado com sucesso com o Google', idToken);
+
+      navigation.navigate('Chat');
     } catch (error) {
       console.error('Erro ao fazer login com o Google', error);
     }
@@ -69,7 +68,6 @@ const SingnIn = () => {
 
   const signInWithApple = async () => {
     try {
-      // Crie uma solicitação de autenticação da Apple
       const appleAuthRequestResponse = await appleAuth.performRequest();
 
       // Crie um token de ID de usuário
@@ -88,6 +86,20 @@ const SingnIn = () => {
     }
   };
 
+  const openLink = async () => {
+    try {
+      await InAppBrowser.openAuth(
+        'https://platform.openai.com/login?launch?redirect_uri=${https://google.com}',
+        'meuapp://Chat',
+        {
+          browserPackage: 'com.android.chrome',
+        },
+      ).then(response => console.log('teste', response));
+    } catch (error) {
+      Alert.alert(error.message);
+    }
+  };
+
   return (
     <View style={{flex: 1, justifyContent: 'flex-end', backgroundColor: 'red'}}>
       <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
@@ -100,6 +112,7 @@ const SingnIn = () => {
           borderTopEndRadius: 25,
           borderTopLeftRadius: 25,
           padding: 15,
+          marginTop: -25,
         }}>
         <TouchableOpacity
           onPress={handleGoogleLogin}
@@ -119,7 +132,7 @@ const SingnIn = () => {
         </TouchableOpacity>
 
         <TouchableOpacity
-          onPress={signInWithApple}
+          onPress={() => appleAuthAndroid.signIn()}
           style={{
             flexDirection: 'row',
             backgroundColor: '#c4c6ca',
@@ -152,6 +165,7 @@ const SingnIn = () => {
         </TouchableOpacity>
 
         <TouchableOpacity
+          onPress={openLink}
           style={{
             backgroundColor: 'transparent',
             padding: 15,
