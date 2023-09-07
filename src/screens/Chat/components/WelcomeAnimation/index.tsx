@@ -6,6 +6,7 @@ type ArithmeticOperation = 'Addition' | 'Subtraction';
 
 type WelcomeAnimationProps = {
   text: string[];
+  disableBackgroung?: boolean;
 };
 
 const WelcomeAnimation: React.FC<WelcomeAnimationProps> = ({
@@ -35,6 +36,20 @@ const WelcomeAnimation: React.FC<WelcomeAnimationProps> = ({
   }, [arithmeticOperation, currentWordIndex, text]);
 
   const colorAnimation = new Animated.Value(0);
+
+  const interpolatedColor = colorAnimation.interpolate({
+    inputRange: [0, 1],
+    outputRange: [randomColor, backgroundColor],
+    easing: () => 1,
+  });
+
+  const containerStyle = useMemo(
+    () => ({
+      ...styles.container,
+      backgroundColor: disableBackgroung ? 'transparent' : interpolatedColor,
+    }),
+    [disableBackgroung, interpolatedColor],
+  );
 
   const isChartVisible = useMemo(
     () =>
@@ -97,18 +112,8 @@ const WelcomeAnimation: React.FC<WelcomeAnimationProps> = ({
     return () => clearInterval(interval);
   }, [arithmeticOperation, counter, handleCounter, currentWordIndex, text]);
 
-  const interpolatedColor = colorAnimation.interpolate({
-    inputRange: [0, 1],
-    outputRange: [randomColor, backgroundColor],
-    easing: () => 1,
-  });
-
   return (
-    <Animated.View
-      style={[
-        styles.container,
-        disableBackgroung || {backgroundColor: interpolatedColor},
-      ]}>
+    <Animated.View style={containerStyle}>
       {text[currentWordIndex].split('').map((char, index) => (
         <Text key={index} style={chartStyle[index]}>
           {char}

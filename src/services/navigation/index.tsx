@@ -9,7 +9,7 @@ import Chat from '../../screens/Chat';
 import HeaderRigthButtons from '../../screens/Chat/components/HeaderRigthButtons';
 import ChatDetails from '../../screens/ChatDetails';
 import SingIn from '../../screens/SingIn';
-import WebView from '../../screens/WebView';
+import DrawerComponent from './components/Drawer';
 
 export type RootStackParamList = {
   SingIn: undefined;
@@ -44,8 +44,7 @@ const Stack = () => {
 
   return (
     <NavigationContainer linking={linking}>
-      <Drawer.Navigator drawerContent={drawerContent}>
-        {/* <Drawer.Screen name="WebView" component={WebView} /> */}
+      <Drawer.Navigator drawerContent={DrawerComponent}>
         <Drawer.Screen
           name="SingIn"
           component={SingIn}
@@ -58,18 +57,23 @@ const Stack = () => {
           name="Chat"
           component={Chat}
           options={{
+            title: '',
             headerRight: HeaderRigthButtons,
             headerRightContainerStyle: {marginRight: 15},
             headerTitleContainerStyle: {marginLeft: 0},
-            title: '',
             headerStyle: {backgroundColor: '#191a20'},
             headerShadowVisible: false,
             headerTransparent: false,
             headerTintColor: '#fff',
+            drawerActiveTintColor: 'red',
+            drawerInactiveTintColor: 'blue',
+            drawerLabelStyle: {
+              color: 'white',
+            },
+            drawerLabel: 'Chat',
             drawerStyle: {
               backgroundColor: '#191a20',
             },
-            drawerIcon: drawerIcon,
           }}
         />
 

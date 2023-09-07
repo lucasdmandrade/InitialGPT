@@ -22,6 +22,7 @@ import {
 import InAppBrowser from 'react-native-inappbrowser-reborn';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {RootStackParamList} from '../../services/navigation';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const SingnIn = () => {
   const [email, setEmail] = useState('');
@@ -37,7 +38,6 @@ const SingnIn = () => {
   const handleLogin = async () => {
     try {
       const response = await auth().signInWithEmailAndPassword(email, password);
-      // Se o login for bem-sucedido, você pode redirecionar o usuário para outra tela aqui.
       console.log('Usuário logado com sucesso', response);
     } catch (error) {
       console.error('Erro ao fazer login', error);
@@ -46,19 +46,19 @@ const SingnIn = () => {
 
   const handleGoogleLogin = async () => {
     try {
-      // Inicie o processo de login com o Google
       const {idToken} = await GoogleSignin.signIn();
 
       console.log(idToken);
 
-      // Crie uma credencial do Google a partir do token
       const googleCredential = auth.GoogleAuthProvider.credential(idToken);
 
-      // Faça o login com a credencial do Google no Firebase
       await auth().signInWithCredential(googleCredential);
 
-      // Se o login for bem-sucedido, você pode redirecionar o usuário para outra tela aqui.
       console.log('Usuário logado com sucesso com o Google', idToken);
+
+      if (idToken) {
+        await AsyncStorage.setItem('@AUTH_TOKEN', idToken);
+      }
 
       navigation.navigate('Chat');
     } catch (error) {
@@ -67,22 +67,21 @@ const SingnIn = () => {
   };
 
   const signInWithApple = async () => {
-    try {
-      const appleAuthRequestResponse = await appleAuth.performRequest();
+    const appleAuthRequestResponse = await appleAuth.performRequest({
+      requestedOperation: appleAuth.Operation.LOGIN,
+      requestedScopes: [appleAuth.Scope.FULL_NAME, appleAuth.Scope.EMAIL],
+    });
 
-      // Crie um token de ID de usuário
-      const {identityToken} = appleAuthRequestResponse;
-      const appleCredential = auth.AppleAuthProvider.credential(identityToken);
+    console.log('apple', appleAuthRequestResponse);
 
-      // Faça login no Firebase com as credenciais da Apple
-      await auth().signInWithCredential(appleCredential);
-    } catch (error) {
-      console.log(error);
-      if (error.code === 'ERR_CANCELED') {
-        // O usuário cancelou a operação de login da Apple
-      } else {
-        Alert.alert('Erro', 'Não foi possível fazer login com a Apple.');
-      }
+    // This method must be tested on a real device. On the iOS simulator it always throws an error.
+    const credentialState = await appleAuth.getCredentialStateForUser(
+      appleAuthRequestResponse.user,
+    );
+
+    // use credentialState response to ensure the user is authenticated
+    if (credentialState === appleAuth.State.AUTHORIZED) {
+      // user is authenticated
     }
   };
 
@@ -132,7 +131,7 @@ const SingnIn = () => {
         </TouchableOpacity>
 
         <TouchableOpacity
-          onPress={() => appleAuthAndroid.signIn()}
+          onPress={signInWithApple}
           style={{
             flexDirection: 'row',
             backgroundColor: '#c4c6ca',

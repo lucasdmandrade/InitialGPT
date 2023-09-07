@@ -33,6 +33,9 @@ interface Message {
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Chat'>;
 
+const token =
+  'qLQ%2BsULlQWoy2alieos%2F8lwxGV%2F499scANbHvelAGprpKskoMDXbiAl5sTEyWnKWxwSk61CuTnnxmVPwGBChIyFO7RsRAmMIQIwGK2IS8pexN9OFK%2Bkkis5YD9IVBjh1nw%3D%3D';
+
 const Chat: FC<Props> = ({navigation}) => {
   const inputRef = useRef<TextInput>(null);
 
@@ -215,7 +218,7 @@ const Chat: FC<Props> = ({navigation}) => {
     setIsLoading(true);
 
     const messageWebSocket = new WebSocket(
-      `${process.env.GPT_API}/chats-ws/?anonymous_user_id=AU-ABC123`,
+      `${process.env.GPT_API}/chats-ws/?token=${token}`,
     );
 
     messageWebSocket.onopen = () => {
@@ -228,9 +231,9 @@ const Chat: FC<Props> = ({navigation}) => {
 
     messageWebSocket.onmessage = handleWebsockerMessage;
 
-    // messageWebSocket.onerror = error => {
-    //   console.error('WebSocket error:', error);
-    // };
+    messageWebSocket.onerror = error => {
+      console.error('WebSocket error:', error);
+    };
 
     messageWebSocket.onclose = () => {
       setIsLoading(false);
