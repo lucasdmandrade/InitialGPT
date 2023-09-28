@@ -1,5 +1,5 @@
-import React, {useCallback} from 'react';
-import {NavigationContainer} from '@react-navigation/native';
+import React, {useCallback, useEffect, useState} from 'react';
+import {NavigationContainer, useNavigation} from '@react-navigation/native';
 import {
   createDrawerNavigator,
   DrawerContentComponentProps,
@@ -10,6 +10,8 @@ import HeaderRigthButtons from '../../screens/Chat/components/HeaderRigthButtons
 import ChatDetails from '../../screens/ChatDetails';
 import SingIn from '../../screens/SingIn';
 import DrawerComponent from './components/Drawer';
+import {getUserToken} from '../storages/auth';
+import Loading from '../../screens/Loading';
 
 export type RootStackParamList = {
   SingIn: undefined;
@@ -21,6 +23,9 @@ export type RootStackParamList = {
 const Drawer = createDrawerNavigator<RootStackParamList>();
 
 const Stack = () => {
+  const [isLogged, setIsLogged] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
   const drawerContent = useCallback(
     (props: DrawerContentComponentProps) => (
       <HamburgerButton onPress={props.navigation.toggleDrawer} />
@@ -42,16 +47,41 @@ const Stack = () => {
     },
   };
 
+  const initApp = useCallback(async () => {
+    setIsLoading(true);
+
+    await getUserToken()
+      .then(token => {
+        if (token) {
+          return setIsLogged(true);
+        }
+        setIsLogged(false);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  }, []);
+
+  useEffect(() => {
+    initApp();
+  }, [initApp]);
+
+  if (isLoading) {
+    return <Loading />;
+  }
+
   return (
     <NavigationContainer linking={linking}>
       <Drawer.Navigator drawerContent={DrawerComponent}>
-        <Drawer.Screen
-          name="SingIn"
-          component={SingIn}
-          options={{
-            header: () => undefined,
-          }}
-        />
+        {!isLogged && (
+          <Drawer.Screen
+            name="SingIn"
+            component={SingIn}
+            options={{
+              header: () => undefined,
+            }}
+          />
+        )}
 
         <Drawer.Screen
           name="Chat"

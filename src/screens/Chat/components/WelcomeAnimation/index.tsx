@@ -6,12 +6,12 @@ type ArithmeticOperation = 'Addition' | 'Subtraction';
 
 type WelcomeAnimationProps = {
   text: string[];
-  disableBackgroung?: boolean;
+  disableBackground?: boolean;
 };
 
 const WelcomeAnimation: React.FC<WelcomeAnimationProps> = ({
   text,
-  disableBackgroung,
+  disableBackground,
 }) => {
   const [backgroundColor, setBackgroundColor] = useState('#FF5733');
   const [counter, setCounter] = useState(0);
@@ -46,9 +46,9 @@ const WelcomeAnimation: React.FC<WelcomeAnimationProps> = ({
   const containerStyle = useMemo(
     () => ({
       ...styles.container,
-      backgroundColor: disableBackgroung ? 'transparent' : interpolatedColor,
+      backgroundColor: disableBackground ? 'transparent' : interpolatedColor,
     }),
-    [disableBackgroung, interpolatedColor],
+    [disableBackground, interpolatedColor],
   );
 
   const isChartVisible = useMemo(

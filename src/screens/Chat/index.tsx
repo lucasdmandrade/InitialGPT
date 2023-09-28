@@ -291,7 +291,7 @@ const Chat: FC<Props> = ({navigation}) => {
 
       {!chat.length ? (
         <View style={styles.iconContainer}>
-          <WelcomeAnimation text={['Snack Prompt ']} disableBackgroung />
+          <WelcomeAnimation text={['Snack Prompt ']} disableBackground />
         </View>
       ) : (
         <MessagesList messages={fullChat} />

@@ -23,6 +23,7 @@ import InAppBrowser from 'react-native-inappbrowser-reborn';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {RootStackParamList} from '../../services/navigation';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {setUserToken} from '../../services/storages/auth';
 
 const SingnIn = () => {
   const [email, setEmail] = useState('');
@@ -54,13 +55,11 @@ const SingnIn = () => {
 
       await auth().signInWithCredential(googleCredential);
 
-      console.log('Usuário logado com sucesso com o Google', idToken);
-
       if (idToken) {
-        await AsyncStorage.setItem('@AUTH_TOKEN', idToken);
-      }
+        await setUserToken(idToken);
 
-      navigation.navigate('Chat');
+        navigation.navigate('Chat');
+      }
     } catch (error) {
       console.error('Erro ao fazer login com o Google', error);
     }
