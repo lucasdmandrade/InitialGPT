@@ -7,8 +7,9 @@ import {
   Modal,
   Dimensions,
 } from 'react-native';
+import CopyText from '../../../../../../assets/icons/CopyText';
 import Dislike from '../../../../../../assets/icons/Dislike';
-import Information from '../../../../../../assets/icons/Information';
+import Document from '../../../../../../assets/icons/Document';
 import Like from '../../../../../../assets/icons/Like';
 import Repeat from '../../../../../../assets/icons/Repeat';
 
@@ -21,12 +22,14 @@ interface OwnProps {
   menuPosition: MenuPosition;
   isVisible?: boolean;
   closeMenu: () => void;
+  isAssistant?: boolean;
 }
 
 const MessageOptionsModal: FC<OwnProps> = ({
   menuPosition,
   isVisible,
   closeMenu,
+  isAssistant,
 }) => {
   const screenWidth = Dimensions.get('window').width;
 
@@ -50,29 +53,35 @@ const MessageOptionsModal: FC<OwnProps> = ({
           <View style={styles.menuContent}>
             <TouchableOpacity onPress={closeMenu}>
               <View style={styles.menuOption}>
-                <Information height={20} width={20} color="white" />
+                <CopyText height={20} width={20} color="white" />
                 <Text style={styles.menuOptionText}>Copy</Text>
               </View>
 
               <View style={styles.menuOption}>
-                <Information height={20} width={20} color="white" />
+                <Document height={20} width={20} color="white" />
                 <Text style={styles.menuOptionText}>Select Text</Text>
               </View>
 
-              <View style={styles.menuOption}>
-                <Like height={20} width={20} color="white" />
-                <Text style={styles.menuOptionText}>Good Response</Text>
-              </View>
+              {isAssistant && (
+                <>
+                  <View style={styles.menuOption}>
+                    <Like height={20} width={20} color="white" />
+                    <Text style={styles.menuOptionText}>Good Response</Text>
+                  </View>
 
-              <View style={styles.menuOption}>
-                <Dislike height={20} width={20} color="white" />
-                <Text style={styles.menuOptionText}>Bad Response</Text>
-              </View>
+                  <View style={styles.menuOption}>
+                    <Dislike height={20} width={20} color="white" />
+                    <Text style={styles.menuOptionText}>Bad Response</Text>
+                  </View>
 
-              <View style={styles.menuOption}>
-                <Repeat height={20} width={20} color="white" />
-                <Text style={styles.menuOptionText}>Regenerate Response</Text>
-              </View>
+                  <View style={styles.menuOption}>
+                    <Repeat height={20} width={20} color="white" />
+                    <Text style={styles.menuOptionText}>
+                      Regenerate Response
+                    </Text>
+                  </View>
+                </>
+              )}
             </TouchableOpacity>
           </View>
         </View>
@@ -86,7 +95,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   menuContainer: {
     position: 'absolute',
@@ -102,11 +110,11 @@ const styles = StyleSheet.create({
   menuOption: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 5,
+    paddingVertical: 10,
   },
   menuOptionText: {
     color: 'white',
-    marginLeft: 5,
+    marginLeft: 10,
   },
 });
 

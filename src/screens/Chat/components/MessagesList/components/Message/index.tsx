@@ -1,4 +1,4 @@
-import React, {FC, useState} from 'react';
+import React, {FC, useMemo, useState} from 'react';
 import {
   View,
   Text,
@@ -19,6 +19,11 @@ const Message: FC<OwnProps> = ({message}) => {
   const [menuVisible, setMenuVisible] = useState(false);
   const [menuPosition, setMenuPosition] = useState({x: 0, y: 0});
 
+  const isAssistant = useMemo(
+    () => message.author === 'assistant',
+    [message.author],
+  );
+
   const handleMenuPress = (e: GestureResponderEvent) => {
     const {pageX, pageY} = e.nativeEvent;
     setMenuPosition({x: pageX, y: pageY});
@@ -29,7 +34,7 @@ const Message: FC<OwnProps> = ({message}) => {
     <View>
       <TouchableOpacity onLongPress={handleMenuPress}>
         <View style={styles.messageContainer} key={`message-${message.id}`}>
-          {message.author === 'assistant' ? (
+          {isAssistant ? (
             <Logo height={25} width={25} />
           ) : (
             <UserDefaultIcon height={25} width={25} />
@@ -37,9 +42,7 @@ const Message: FC<OwnProps> = ({message}) => {
 
           <View style={styles.textContainer}>
             <Text style={styles.messageTitle}>
-              {message.author === 'assistant'
-                ? 'CHATGPT'
-                : message.author.toUpperCase()}
+              {isAssistant ? 'CHATGPT' : message.author.toUpperCase()}
             </Text>
             <Text style={styles.title}>{message.content}</Text>
           </View>
@@ -50,6 +53,7 @@ const Message: FC<OwnProps> = ({message}) => {
         menuPosition={menuPosition}
         isVisible={menuVisible}
         closeMenu={() => setMenuVisible(false)}
+        isAssistant={isAssistant}
       />
     </View>
   );
