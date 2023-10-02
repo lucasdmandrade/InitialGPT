@@ -1,34 +1,19 @@
-import React, {useState} from 'react';
+import React from 'react';
 import {useNavigation} from '@react-navigation/native';
-import {
-  Alert,
-  Button,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import {Alert, Text, TouchableOpacity, View} from 'react-native';
 import auth from '@react-native-firebase/auth';
 import {GoogleSignin} from '@react-native-community/google-signin';
 import WelcomeAnimation from '../Chat/components/WelcomeAnimation';
 import Google from '../../assets/icons/Google';
 import Apple from '../../assets/icons/Apple';
 import Mail from '../../assets/icons/Mail';
-import {
-  appleAuth,
-  appleAuthAndroid,
-  AppleRequestOperation,
-} from '@invertase/react-native-apple-authentication';
+import {appleAuth} from '@invertase/react-native-apple-authentication';
 import InAppBrowser from 'react-native-inappbrowser-reborn';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {RootStackParamList} from '../../services/navigation';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import {setUserToken} from '../../services/storages/auth';
 
 const SingnIn = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
 
   GoogleSignin.configure({
@@ -36,27 +21,20 @@ const SingnIn = () => {
     offlineAccess: false,
   });
 
-  const handleLogin = async () => {
-    try {
-      const response = await auth().signInWithEmailAndPassword(email, password);
-      console.log('Usuário logado com sucesso', response);
-    } catch (error) {
-      console.error('Erro ao fazer login', error);
-    }
-  };
-
   const handleGoogleLogin = async () => {
     try {
       const {idToken} = await GoogleSignin.signIn();
 
-      console.log(idToken);
-
-      const googleCredential = auth.GoogleAuthProvider.credential(idToken);
+      const googleCredential = await auth.GoogleAuthProvider.credential(
+        idToken,
+      );
 
       await auth().signInWithCredential(googleCredential);
 
-      if (idToken) {
-        await setUserToken(idToken);
+      const token = await auth().currentUser?.getIdToken();
+
+      if (token) {
+        await setUserToken(token);
 
         navigation.navigate('Chat');
       }
@@ -70,8 +48,6 @@ const SingnIn = () => {
       requestedOperation: appleAuth.Operation.LOGIN,
       requestedScopes: [appleAuth.Scope.FULL_NAME, appleAuth.Scope.EMAIL],
     });
-
-    console.log('apple', appleAuthRequestResponse);
 
     // This method must be tested on a real device. On the iOS simulator it always throws an error.
     const credentialState = await appleAuth.getCredentialStateForUser(

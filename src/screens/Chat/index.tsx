@@ -21,6 +21,8 @@ import deleteChatEmittter, {
   EVENTS,
 } from '../../services/events/DeletChatEmitter';
 import {deleteChat} from '../../api/chats';
+import {getUserToken} from '../../services/storages/auth';
+import Footer from './components/Footer';
 
 interface Message {
   author: string;
@@ -33,40 +35,31 @@ interface Message {
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Chat'>;
 
-const token =
-  'qLQ%2BsULlQWoy2alieos%2F8lwxGV%2F499scANbHvelAGprpKskoMDXbiAl5sTEyWnKWxwSk61CuTnnxmVPwGBChIyFO7RsRAmMIQIwGK2IS8pexN9OFK%2Bkkis5YD9IVBjh1nw%3D%3D';
-
 const Chat: FC<Props> = ({navigation}) => {
   const inputRef = useRef<TextInput>(null);
 
   const [chatTitle, setChatTitle] = useState('');
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [inputHeight, setInputHeight] = useState<number>();
   const [lastMessage, setLastMessage] = useState<Message>();
   const [isLoading, setIsLoading] = useState(false);
   const [webSocket, setWebSocket] = useState<WebSocket>();
+  const [userToken, setUserToken] = useState('');
+
+  const getToken = useCallback(async () => {
+    const user = await getUserToken();
+
+    if (user) {
+      setUserToken(user);
+    }
+  }, []);
 
   const [chatMessage, setChatMessage] = useState('');
   const [isChatStarted, setIsChatStarted] = useState(false);
   const [chat, setChat] = useState<Message[]>([]);
 
-  const isButtonDesable = useMemo(
+  const isButtonDesabled = useMemo(
     () => !chatMessage?.length && !isLoading,
     [chatMessage, isLoading],
-  );
-  const buttonStyle = useMemo(
-    () => ({
-      ...styles.arrowUpContainer,
-      backgroundColor:
-        isButtonDesable && !isLoading
-          ? 'rgba(61, 63, 63, 0.655)'
-          : 'rgb(180, 190, 242)',
-    }),
-    [isButtonDesable, isLoading],
-  );
-  const isOpenModalVisible = useMemo(
-    () => inputHeight && inputHeight > 70,
-    [inputHeight],
   );
   const lastMessageId = useMemo(() => chat.at(-1)?.id || '', [chat]);
   const chatId = useMemo(() => chat[1]?.chatId || undefined, [chat]);
@@ -171,7 +164,7 @@ const Chat: FC<Props> = ({navigation}) => {
     //todo: create storage for anonymous_user_id
 
     const messageWebSocket = new WebSocket(
-      `${process.env.GPT_API}/chats/${chatId}/messages/ws/?anonymous_user_id=AU-ABC123`,
+      `${process.env.GPT_API}/chats/${chatId}/messages/ws/?token=${userToken}`,
     );
 
     messageWebSocket.onopen = () => {
@@ -202,13 +195,7 @@ const Chat: FC<Props> = ({navigation}) => {
         messageWebSocket.close();
       }
     };
-  }, [
-    chatId,
-    chatMessage,
-    handleWebsockerMessage,
-    lastMessageId,
-    setLastMessage,
-  ]);
+  }, [chatId, chatMessage, handleWebsockerMessage, lastMessageId, userToken]);
 
   const newChatWebSocket = useCallback(() => {
     if (!chatMessage) {
@@ -218,7 +205,7 @@ const Chat: FC<Props> = ({navigation}) => {
     setIsLoading(true);
 
     const messageWebSocket = new WebSocket(
-      `${process.env.GPT_API}/chats-ws/?token=${token}`,
+      `${process.env.GPT_API}/chats-ws/?token=${userToken}`,
     );
 
     messageWebSocket.onopen = () => {
@@ -246,7 +233,7 @@ const Chat: FC<Props> = ({navigation}) => {
         messageWebSocket.close();
       }
     };
-  }, [chatMessage, handleWebsockerMessage]);
+  }, [chatMessage, handleWebsockerMessage, userToken]);
 
   const messageSender = useCallback(
     async () =>
@@ -273,6 +260,10 @@ const Chat: FC<Props> = ({navigation}) => {
     };
   }, [excludeChat]);
 
+  useEffect(() => {
+    getToken();
+  }, [getToken]);
+
   return (
     <View style={styles.container}>
       <FullScreenInput
@@ -297,43 +288,17 @@ const Chat: FC<Props> = ({navigation}) => {
         <MessagesList messages={fullChat} />
       )}
 
-      <View style={styles.footer}>
-        <View style={[styles.inputArea, {height: inputHeight}]}>
-          <VoiceTranscriber messageSetter={setChatMessage} />
-
-          <TextInput
-            multiline={true}
-            onContentSizeChange={event => {
-              setInputHeight(event.nativeEvent.contentSize.height);
-            }}
-            ref={inputRef}
-            style={styles.inputText}
-            placeholder="Message"
-            placeholderTextColor="#ffffffcc"
-            value={chatMessage}
-            onChangeText={setChatMessage}
-          />
-        </View>
-
-        <View style={styles.inputButtonsContainerr}>
-          {isOpenModalVisible && (
-            <TouchableOpacity onPress={() => setIsModalVisible(true)}>
-              <Maximize width={22} height={22} color={'#ffffffcc'} />
-            </TouchableOpacity>
-          )}
-
-          <TouchableOpacity
-            style={buttonStyle}
-            onPress={isLoading ? () => stopWebSocket : sendMessageAndCleanInput}
-            disabled={isButtonDesable}>
-            {isLoading ? (
-              <View style={styles.square} />
-            ) : (
-              <ArrowUp width={24} height={24} color={'#ffffffcc'} />
-            )}
-          </TouchableOpacity>
-        </View>
-      </View>
+      <Footer
+        action={isLoading ? stopWebSocket : sendMessageAndCleanInput}
+        messageHandler={{
+          chatMessage: chatMessage,
+          setChatMessage: setChatMessage,
+        }}
+        messageSetter={setChatMessage}
+        showModal={() => setIsModalVisible(true)}
+        isButtonDesabled={isButtonDesabled}
+        isLoading={isLoading}
+      />
     </View>
   );
 };
