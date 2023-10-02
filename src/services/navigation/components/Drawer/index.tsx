@@ -19,18 +19,9 @@ const Drawer = props => {
 
   return (
     <DrawerContentScrollView {...props}>
-      <View style={{paddingHorizontal: 20, marginTop: 20}}>
+      <View style={styles.conatiner}>
         <View style={{flexDirection: 'row'}}>
-          <View
-            style={{
-              alignItems: 'center',
-              justifyContent: 'center',
-              width: 40,
-              height: 40,
-              borderRadius: 50,
-              backgroundColor: 'blue',
-              marginRight: 10,
-            }}>
+          <View style={styles.imageContainer}>
             <Text style={{color: 'white', fontSize: 22}}>L</Text>
           </View>
 
@@ -43,22 +34,8 @@ const Drawer = props => {
         </View>
       </View>
 
-      <View
-        style={{
-          flex: 1,
-          alignItems: 'flex-start',
-          marginHorizontal: 20,
-          marginBottom: 25,
-          marginTop: 15,
-        }}>
-        <TouchableOpacity
-          style={{
-            flex: 1,
-            backgroundColor: '#2d2f39',
-            borderRadius: 10,
-            paddingHorizontal: 10,
-            paddingVertical: 5,
-          }}>
+      <View style={styles.freePlanContainer}>
+        <TouchableOpacity style={styles.freePlanContent}>
           <Text style={{fontSize: 16, color: 'white'}}>Free Plan</Text>
         </TouchableOpacity>
       </View>
@@ -101,6 +78,33 @@ const Drawer = props => {
 };
 
 const styles = StyleSheet.create({
+  conatiner: {
+    paddingHorizontal: 20,
+    marginTop: 20,
+  },
+  imageContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 40,
+    height: 40,
+    borderRadius: 50,
+    backgroundColor: 'blue',
+    marginRight: 10,
+  },
+  freePlanContainer: {
+    flex: 1,
+    alignItems: 'flex-start',
+    marginHorizontal: 20,
+    marginBottom: 25,
+    marginTop: 15,
+  },
+  freePlanContent: {
+    flex: 1,
+    backgroundColor: '#2d2f39',
+    borderRadius: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+  },
   label: {
     color: 'white',
     margin: 0,

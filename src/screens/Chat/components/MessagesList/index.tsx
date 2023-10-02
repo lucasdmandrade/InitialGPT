@@ -1,7 +1,7 @@
 import React, {FC, useCallback, useRef} from 'react';
-import {ScrollView, StyleSheet, Text, View} from 'react-native';
-import Logo from '../../../../assets/icons/ChatGPT/Logo';
-import UserDefaultIcon from '../../../../assets/icons/UserDefaultIcon';
+import {ScrollView, StyleSheet} from 'react-native';
+
+import Message from './components/Message';
 import {OwnProps} from './types';
 
 const MessagesList: FC<OwnProps> = ({messages}) => {
@@ -17,23 +17,8 @@ const MessagesList: FC<OwnProps> = ({messages}) => {
       style={styles.scrollContainer}
       ref={scrollViewRef}
       onContentSizeChange={scrollToEnd}>
-      {messages.map((message, key) => (
-        <View style={styles.messageContainer} key={`message-${key}`}>
-          {message.author === 'assistant' ? (
-            <Logo height={25} width={25} />
-          ) : (
-            <UserDefaultIcon height={25} width={25} />
-          )}
-
-          <View style={styles.textContainer}>
-            <Text style={styles.messageTitle}>
-              {message.author === 'assistant'
-                ? 'CHATGPT'
-                : message.author.toUpperCase()}
-            </Text>
-            <Text style={styles.title}>{message.content}</Text>
-          </View>
-        </View>
+      {messages.map(message => (
+        <Message message={message} />
       ))}
     </ScrollView>
   );

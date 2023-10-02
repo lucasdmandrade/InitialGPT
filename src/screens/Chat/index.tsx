@@ -8,14 +8,10 @@ import React, {
 } from 'react';
 import {StyleSheet, TextInput, View} from 'react-native';
 import type {NativeStackScreenProps} from '@react-navigation/native-stack';
-import {TouchableOpacity} from 'react-native-gesture-handler';
-import ArrowUp from '../../assets/icons/arrows/ArrowUp';
 import MessagesList from './components/MessagesList';
-import VoiceTranscriber from './components/VoiceTranscriber';
 import WelcomeAnimation from './components/WelcomeAnimation';
 import {RootStackParamList} from '../../services/navigation';
 import FullScreenInput from './components/FullScreenInput';
-import Maximize from '../../assets/icons/arrows/Maximize';
 import EditTitleModal from './components/EditTitleModal';
 import deleteChatEmittter, {
   EVENTS,
