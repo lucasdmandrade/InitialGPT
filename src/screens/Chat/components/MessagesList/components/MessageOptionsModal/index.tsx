@@ -7,6 +7,7 @@ import {
   Modal,
   Dimensions,
 } from 'react-native';
+import Clipboard from '@react-native-community/clipboard';
 import CopyText from '../../../../../../assets/icons/CopyText';
 import Dislike from '../../../../../../assets/icons/Dislike';
 import Document from '../../../../../../assets/icons/Document';
@@ -23,6 +24,7 @@ interface OwnProps {
   isVisible?: boolean;
   closeMenu: () => void;
   isAssistant?: boolean;
+  message: string;
 }
 
 const MessageOptionsModal: FC<OwnProps> = ({
@@ -30,6 +32,7 @@ const MessageOptionsModal: FC<OwnProps> = ({
   isVisible,
   closeMenu,
   isAssistant,
+  message,
 }) => {
   const screenWidth = Dimensions.get('window').width;
 
@@ -51,7 +54,7 @@ const MessageOptionsModal: FC<OwnProps> = ({
       <TouchableOpacity style={styles.modalContainer} onPress={closeMenu}>
         <View style={modalStyle}>
           <View style={styles.menuContent}>
-            <TouchableOpacity onPress={closeMenu}>
+            <TouchableOpacity onPress={() => Clipboard.setString(message)}>
               <View style={styles.menuOption}>
                 <CopyText height={20} width={20} color="white" />
                 <Text style={styles.menuOptionText}>Copy</Text>

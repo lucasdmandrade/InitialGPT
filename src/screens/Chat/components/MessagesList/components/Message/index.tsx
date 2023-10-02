@@ -31,9 +31,9 @@ const Message: FC<OwnProps> = ({message}) => {
   };
 
   return (
-    <View>
+    <View key={`message-${message.id}`}>
       <TouchableOpacity onLongPress={handleMenuPress}>
-        <View style={styles.messageContainer} key={`message-${message.id}`}>
+        <View style={styles.messageContainer}>
           {isAssistant ? (
             <Logo height={25} width={25} />
           ) : (
@@ -54,6 +54,7 @@ const Message: FC<OwnProps> = ({message}) => {
         isVisible={menuVisible}
         closeMenu={() => setMenuVisible(false)}
         isAssistant={isAssistant}
+        message={message.content}
       />
     </View>
   );
