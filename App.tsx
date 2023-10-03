@@ -5,7 +5,7 @@ import {MenuProvider} from 'react-native-popup-menu';
 import Stack from './src/services/navigation';
 
 export default function App() {
-  const example = async () => {
+  const changeNavigationBar = async () => {
     try {
       await changeNavigationBarColor('#191a20');
     } catch (e) {
@@ -13,7 +13,7 @@ export default function App() {
     }
   };
 
-  example();
+  changeNavigationBar();
 
   return (
     <>
