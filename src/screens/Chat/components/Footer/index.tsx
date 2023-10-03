@@ -11,7 +11,6 @@ interface MessageHandler {
 }
 
 interface OwnProps {
-  isButtonDesabled?: boolean;
   isLoading?: boolean;
   messageSetter: any;
   messageHandler: MessageHandler;
@@ -20,7 +19,6 @@ interface OwnProps {
 }
 
 const Chat: FC<OwnProps> = ({
-  isButtonDesabled,
   isLoading,
   messageSetter,
   messageHandler,
@@ -30,6 +28,11 @@ const Chat: FC<OwnProps> = ({
   const inputRef = useRef<TextInput>(null);
 
   const [inputHeight, setInputHeight] = useState<number>();
+
+  const isButtonDesabled = useMemo(
+    () => !messageHandler.chatMessage?.length && !isLoading,
+    [isLoading, messageHandler],
+  );
 
   const buttonStyle = useMemo(
     () => ({

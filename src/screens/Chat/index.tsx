@@ -53,10 +53,6 @@ const Chat: FC<Props> = ({navigation}) => {
   const [isChatStarted, setIsChatStarted] = useState(false);
   const [chat, setChat] = useState<Message[]>([]);
 
-  const isButtonDesabled = useMemo(
-    () => !chatMessage?.length && !isLoading,
-    [chatMessage, isLoading],
-  );
   const lastMessageId = useMemo(() => chat.at(-1)?.id || '', [chat]);
   const chatId = useMemo(() => chat[1]?.chatId || undefined, [chat]);
   const fullChat = useMemo<Message[]>(
@@ -292,7 +288,6 @@ const Chat: FC<Props> = ({navigation}) => {
         }}
         messageSetter={setChatMessage}
         showModal={() => setIsModalVisible(true)}
-        isButtonDesabled={isButtonDesabled}
         isLoading={isLoading}
       />
     </View>
