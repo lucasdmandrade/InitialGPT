@@ -13,6 +13,9 @@ import Dislike from '../../../../../../assets/icons/Dislike';
 import Document from '../../../../../../assets/icons/Document';
 import Like from '../../../../../../assets/icons/Like';
 import Repeat from '../../../../../../assets/icons/Repeat';
+import {useNavigation} from '@react-navigation/native';
+import {StackNavigationProp} from '@react-navigation/stack';
+import {RootStackParamList} from '../../../../../../services/navigation';
 
 interface MenuPosition {
   x: number;
@@ -36,6 +39,8 @@ const MessageOptionsModal: FC<OwnProps> = ({
 }) => {
   const screenWidth = Dimensions.get('window').width;
 
+  const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
+
   const modalStyle = useMemo(() => {
     const horizontalPosition =
       menuPosition.x > screenWidth / 2
@@ -53,39 +58,42 @@ const MessageOptionsModal: FC<OwnProps> = ({
     <Modal visible={isVisible} transparent={true} onRequestClose={closeMenu}>
       <TouchableOpacity style={styles.modalContainer} onPress={closeMenu}>
         <View style={modalStyle}>
-          <View style={styles.menuContent}>
+          <View>
             <TouchableOpacity onPress={() => Clipboard.setString(message)}>
               <View style={styles.menuOption}>
                 <CopyText height={20} width={20} color="white" />
                 <Text style={styles.menuOptionText}>Copy</Text>
               </View>
+            </TouchableOpacity>
 
+            <TouchableOpacity
+              onPress={() =>
+                navigation.navigate('SelectText', {text: message})
+              }>
               <View style={styles.menuOption}>
                 <Document height={20} width={20} color="white" />
                 <Text style={styles.menuOptionText}>Select Text</Text>
               </View>
-
-              {isAssistant && (
-                <>
-                  <View style={styles.menuOption}>
-                    <Like height={20} width={20} color="white" />
-                    <Text style={styles.menuOptionText}>Good Response</Text>
-                  </View>
-
-                  <View style={styles.menuOption}>
-                    <Dislike height={20} width={20} color="white" />
-                    <Text style={styles.menuOptionText}>Bad Response</Text>
-                  </View>
-
-                  <View style={styles.menuOption}>
-                    <Repeat height={20} width={20} color="white" />
-                    <Text style={styles.menuOptionText}>
-                      Regenerate Response
-                    </Text>
-                  </View>
-                </>
-              )}
             </TouchableOpacity>
+
+            {isAssistant && (
+              <>
+                <View style={styles.menuOption}>
+                  <Like height={20} width={20} color="white" />
+                  <Text style={styles.menuOptionText}>Good Response</Text>
+                </View>
+
+                <View style={styles.menuOption}>
+                  <Dislike height={20} width={20} color="white" />
+                  <Text style={styles.menuOptionText}>Bad Response</Text>
+                </View>
+
+                <View style={styles.menuOption}>
+                  <Repeat height={20} width={20} color="white" />
+                  <Text style={styles.menuOptionText}>Regenerate Response</Text>
+                </View>
+              </>
+            )}
           </View>
         </View>
       </TouchableOpacity>
@@ -106,9 +114,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     borderRadius: 5,
     zIndex: 9999,
-  },
-  menuContent: {
-    flexDirection: 'row',
   },
   menuOption: {
     flexDirection: 'row',

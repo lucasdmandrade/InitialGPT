@@ -1,5 +1,5 @@
 import React, {useCallback, useEffect, useState} from 'react';
-import {NavigationContainer, useNavigation} from '@react-navigation/native';
+import {NavigationContainer} from '@react-navigation/native';
 import {
   createDrawerNavigator,
   DrawerContentComponentProps,
@@ -12,11 +12,17 @@ import SingIn from '../../screens/SingIn';
 import DrawerComponent from './components/Drawer';
 import {getUserToken} from '../storages/auth';
 import Loading from '../../screens/Loading';
+import SelectText from '../../screens/SelectText';
+
+interface SelectTextProps {
+  text: string;
+}
 
 export type RootStackParamList = {
   SingIn: undefined;
   Chat: undefined;
   ChatDetails: undefined;
+  SelectText: SelectTextProps;
   WebView: undefined;
 };
 
@@ -108,6 +114,8 @@ const Stack = () => {
         />
 
         <Drawer.Screen name="ChatDetails" component={ChatDetails} />
+
+        <Drawer.Screen name="SelectText" component={SelectText} />
       </Drawer.Navigator>
     </NavigationContainer>
   );
