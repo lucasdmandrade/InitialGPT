@@ -54,7 +54,7 @@ const Message: FC<OwnProps> = ({message}) => {
         isVisible={menuVisible}
         closeMenu={() => setMenuVisible(false)}
         isAssistant={isAssistant}
-        message={message.content}
+        message={message}
       />
     </View>
   );

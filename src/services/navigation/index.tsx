@@ -13,6 +13,7 @@ import DrawerComponent from './components/Drawer';
 import {getUserToken} from '../storages/auth';
 import Loading from '../../screens/Loading';
 import SelectText from '../../screens/SelectText';
+import initAppEmittter, {EVENTS} from '../events/InitApp';
 
 interface SelectTextProps {
   text: string;
@@ -59,7 +60,7 @@ const Stack = () => {
     await getUserToken()
       .then(token => {
         if (token) {
-          return setIsLogged(true);
+          setIsLogged(true);
         }
         setIsLogged(false);
       })
@@ -70,6 +71,14 @@ const Stack = () => {
 
   useEffect(() => {
     initApp();
+  }, [initApp]);
+
+  useEffect(() => {
+    initAppEmittter.on(EVENTS.initApp, initApp);
+
+    return () => {
+      initAppEmittter.off(EVENTS.initApp);
+    };
   }, [initApp]);
 
   if (isLoading) {

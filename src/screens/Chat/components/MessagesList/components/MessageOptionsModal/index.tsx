@@ -16,6 +16,10 @@ import Repeat from '../../../../../../assets/icons/Repeat';
 import {useNavigation} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {RootStackParamList} from '../../../../../../services/navigation';
+import regenerateMessageEmitter, {
+  EVENTS,
+} from '../../../../../../services/events/RegenerateMessageEmitter';
+import {Message} from '../../../../../../api/models/chats';
 
 interface MenuPosition {
   x: number;
@@ -27,7 +31,7 @@ interface OwnProps {
   isVisible?: boolean;
   closeMenu: () => void;
   isAssistant?: boolean;
-  message: string;
+  message: Message;
 }
 
 const MessageOptionsModal: FC<OwnProps> = ({
@@ -59,7 +63,8 @@ const MessageOptionsModal: FC<OwnProps> = ({
       <TouchableOpacity style={styles.modalContainer} onPress={closeMenu}>
         <View style={modalStyle}>
           <View>
-            <TouchableOpacity onPress={() => Clipboard.setString(message)}>
+            <TouchableOpacity
+              onPress={() => Clipboard.setString(message.content)}>
               <View style={styles.menuOption}>
                 <CopyText height={20} width={20} color="white" />
                 <Text style={styles.menuOptionText}>Copy</Text>
@@ -68,7 +73,7 @@ const MessageOptionsModal: FC<OwnProps> = ({
 
             <TouchableOpacity
               onPress={() =>
-                navigation.navigate('SelectText', {text: message})
+                navigation.navigate('SelectText', {text: message.content})
               }>
               <View style={styles.menuOption}>
                 <Document height={20} width={20} color="white" />
@@ -88,10 +93,20 @@ const MessageOptionsModal: FC<OwnProps> = ({
                   <Text style={styles.menuOptionText}>Bad Response</Text>
                 </View>
 
-                <View style={styles.menuOption}>
-                  <Repeat height={20} width={20} color="white" />
-                  <Text style={styles.menuOptionText}>Regenerate Response</Text>
-                </View>
+                <TouchableOpacity
+                  onPress={() =>
+                    regenerateMessageEmitter.emit(
+                      EVENTS.regenerateMessage,
+                      message.id,
+                    )
+                  }>
+                  <View style={styles.menuOption}>
+                    <Repeat height={20} width={20} color="white" />
+                    <Text style={styles.menuOptionText}>
+                      Regenerate Response
+                    </Text>
+                  </View>
+                </TouchableOpacity>
               </>
             )}
           </View>

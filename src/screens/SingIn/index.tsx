@@ -12,6 +12,7 @@ import InAppBrowser from 'react-native-inappbrowser-reborn';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {RootStackParamList} from '../../services/navigation';
 import {setUserToken} from '../../services/storages/auth';
+import initAppEmittter, {EVENTS} from '../../services/events/InitApp';
 
 const SingnIn = () => {
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
@@ -37,6 +38,8 @@ const SingnIn = () => {
         await setUserToken(token);
 
         navigation.navigate('Chat');
+
+        //initAppEmittter.emit(EVENTS.initApp);
       }
     } catch (error) {
       console.error('Erro ao fazer login com o Google', error);

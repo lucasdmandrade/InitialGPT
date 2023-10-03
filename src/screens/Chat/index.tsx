@@ -19,6 +19,9 @@ import deleteChatEmittter, {
 import {deleteChat} from '../../api/chats';
 import {getUserToken} from '../../services/storages/auth';
 import Footer from './components/Footer';
+import regenerateMessageEmitter, {
+  EVENTS as REGENERATE_EVENTS,
+} from '../../services/events/RegenerateMessageEmitter';
 
 interface Message {
   author: string;
@@ -117,6 +120,21 @@ const Chat: FC<Props> = ({navigation}) => {
     [chat],
   );
 
+  const changeChatMessage = useCallback(
+    (newMessage: Message, messageId: string) => {
+      const newChat = chat.map(message => message);
+
+      const changedMessagePosition = newChat.findIndex(
+        message => message.id === messageId,
+      );
+
+      newChat[changedMessagePosition] = newMessage;
+
+      setChat(newChat);
+    },
+    [chat],
+  );
+
   const handleWebsockerMessage = useCallback(
     (e: WebSocketMessageEvent) => {
       try {
@@ -144,6 +162,21 @@ const Chat: FC<Props> = ({navigation}) => {
       increaseChatNewMessages,
       userMessageFactory,
     ],
+  );
+
+  const changeMessage = useCallback(
+    (e: WebSocketMessageEvent, messageId: string) => {
+      try {
+        const message = JSON.parse(e.data);
+
+        changeChatMessage(message, messageId);
+      } catch {
+        const message = assistantMessageFactory(e.data);
+
+        changeChatMessage(message, messageId);
+      }
+    },
+    [assistantMessageFactory, changeChatMessage],
   );
 
   const newMessageWebSocket = useCallback(() => {
@@ -227,6 +260,35 @@ const Chat: FC<Props> = ({navigation}) => {
     };
   }, [chatMessage, handleWebsockerMessage, userToken]);
 
+  const regenerateMessage = useCallback(
+    (messageId: string) => {
+      console.log('messageId: ', messageId);
+
+      setIsLoading(true);
+
+      const messageWebSocket = new WebSocket(
+        `${process.env.GPT_API}/chats/${chatId}/messages/${messageId}/ws/?token=${userToken}`,
+      );
+
+      messageWebSocket.onmessage = event => changeMessage(event, messageId);
+
+      messageWebSocket.onerror = error => {
+        console.error('WebSocket error:', error);
+      };
+
+      messageWebSocket.onclose = () => {
+        setIsLoading(false);
+      };
+
+      return () => {
+        if (messageWebSocket) {
+          messageWebSocket.close();
+        }
+      };
+    },
+    [changeMessage, chatId, userToken],
+  );
+
   const messageSender = useCallback(
     async () =>
       isChatStarted ? await newMessageWebSocket() : await newChatWebSocket(),
@@ -247,10 +309,16 @@ const Chat: FC<Props> = ({navigation}) => {
   useEffect(() => {
     deleteChatEmittter.on(EVENTS.deletChat, excludeChat);
 
+    regenerateMessageEmitter.on(
+      REGENERATE_EVENTS.regenerateMessage,
+      regenerateMessage,
+    );
+
     return () => {
       deleteChatEmittter.off(EVENTS.deletChat);
+      regenerateMessageEmitter.off(REGENERATE_EVENTS.regenerateMessage);
     };
-  }, [excludeChat]);
+  }, [excludeChat, regenerateMessage]);
 
   useEffect(() => {
     getToken();
