@@ -22,6 +22,7 @@ import Footer from './components/Footer';
 import regenerateMessageEmitter, {
   EVENTS as REGENERATE_EVENTS,
 } from '../../services/events/RegenerateMessageEmitter';
+import colors from '../../styles/Colors';
 
 interface Message {
   author: string;
@@ -365,7 +366,7 @@ const Chat: FC<Props> = ({navigation}) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#191a20',
+    backgroundColor: colors.dark.background,
     alignItems: 'center',
     justifyContent: 'flex-end',
     padding: 15,
@@ -375,45 +376,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  inputText: {
-    flex: 1,
-    color: '#ffffff99',
-    fontSize: 16,
-    marginLeft: 10,
-    paddingRight: 5,
-  },
-  inputArea: {
-    flex: 1,
-    flexDirection: 'row',
-    backgroundColor: '#2d2f39',
-    height: 50,
-    borderRadius: 50,
-    paddingHorizontal: 10,
-    alignItems: 'center',
-    marginRight: 10,
-  },
-  arrowUpContainer: {
-    width: 38,
-    height: 38,
-    backgroundColor: 'rgb(180, 190, 242)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: 100,
-    marginTop: 10,
-  },
   iconContainer: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
     width: '100%',
-  },
-  square: {
-    width: 15,
-    height: 15,
-    backgroundColor: '#ffffffcc',
-  },
-  inputButtonsContainerr: {
-    alignItems: 'center',
   },
 });
 

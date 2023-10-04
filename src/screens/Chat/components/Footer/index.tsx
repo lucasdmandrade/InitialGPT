@@ -1,7 +1,7 @@
 import React, {FC, useEffect, useMemo, useRef, useState} from 'react';
 import {StyleSheet, TextInput, View} from 'react-native';
 import {TouchableOpacity} from 'react-native-gesture-handler';
-import ArrowUp from '../../../../assets/icons/arrows/ArrowUp';
+import Arrow from '../../../../assets/icons/arrows/Arrow';
 import Maximize from '../../../../assets/icons/arrows/Maximize';
 import VoiceTranscriber from '../VoiceTranscriber';
 
@@ -86,7 +86,7 @@ const Chat: FC<OwnProps> = ({
           {isLoading ? (
             <View style={styles.square} />
           ) : (
-            <ArrowUp width={24} height={24} color={'#ffffffcc'} />
+            <Arrow width={24} height={24} color={'#ffffffcc'} direction="up" />
           )}
         </TouchableOpacity>
       </View>

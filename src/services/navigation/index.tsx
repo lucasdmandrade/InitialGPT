@@ -14,6 +14,7 @@ import {getUserToken} from '../storages/auth';
 import Loading from '../../screens/Loading';
 import SelectText from '../../screens/SelectText';
 import initAppEmittter, {EVENTS} from '../events/InitApp';
+import History from '../../screens/History';
 
 interface SelectTextProps {
   text: string;
@@ -22,6 +23,7 @@ interface SelectTextProps {
 export type RootStackParamList = {
   SingIn: undefined;
   Chat: undefined;
+  History: undefined;
   ChatDetails: undefined;
   SelectText: SelectTextProps;
   WebView: undefined;
@@ -120,6 +122,12 @@ const Stack = () => {
               backgroundColor: '#191a20',
             },
           }}
+        />
+
+        <Drawer.Screen
+          name="History"
+          component={History}
+          options={{header: () => undefined}}
         />
 
         <Drawer.Screen name="ChatDetails" component={ChatDetails} />

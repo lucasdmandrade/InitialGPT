@@ -52,8 +52,8 @@ const Drawer = props => {
       <DrawerItem
         label="History"
         labelStyle={styles.label}
-        onPress={() => navigation.navigate('ChatDetails')}
-        to={'ChatDetails'}
+        onPress={() => navigation.navigate('History')}
+        to={'History'}
         icon={() => <History height={18} width={18} color="white" />}
       />
 

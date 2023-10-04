@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import ArrowUp from '../../../../assets/icons/arrows/ArrowUp';
+import ArrowUp from '../../../../assets/icons/arrows/Arrow';
 import Minimize from '../../../../assets/icons/arrows/Minimize';
 
 interface OwnProps {
