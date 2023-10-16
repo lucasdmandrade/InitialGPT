@@ -1,12 +1,5 @@
-import React, {
-  FC,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
-import {StyleSheet, TextInput, View} from 'react-native';
+import React, {FC, useCallback, useEffect, useMemo, useState} from 'react';
+import {StyleSheet, View} from 'react-native';
 import type {NativeStackScreenProps} from '@react-navigation/native-stack';
 import MessagesList from './components/MessagesList';
 import WelcomeAnimation from './components/WelcomeAnimation';
@@ -23,6 +16,12 @@ import regenerateMessageEmitter, {
   EVENTS as REGENERATE_EVENTS,
 } from '../../services/events/RegenerateMessageEmitter';
 import colors from '../../styles/Colors';
+import {
+  newChatWebSocket,
+  newMessageWebSocket,
+  regenerateMessage,
+  stopWebSocket,
+} from '../../api/chatWebsocket';
 
 interface Message {
   author: string;
@@ -36,8 +35,6 @@ interface Message {
 type Props = NativeStackScreenProps<RootStackParamList, 'Chat'>;
 
 const Chat: FC<Props> = ({navigation}) => {
-  const inputRef = useRef<TextInput>(null);
-
   const [chatTitle, setChatTitle] = useState('');
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [lastMessage, setLastMessage] = useState<Message>();
@@ -80,29 +77,10 @@ const Chat: FC<Props> = ({navigation}) => {
     }
   }, []);
 
-  const stopWebSocket = useCallback(() => {
-    webSocket?.send(
-      JSON.stringify({
-        close: true,
-      }),
-    );
-  }, [webSocket]);
-
   const userMessageFactory = useCallback(
     (message: string) => {
       return {
         author: 'user',
-        chatId,
-        content: message,
-      } as Message;
-    },
-    [chatId],
-  );
-
-  const assistantMessageFactory = useCallback(
-    (message: string) => {
-      return {
-        author: 'assistant',
         chatId,
         content: message,
       } as Message;
@@ -121,179 +99,43 @@ const Chat: FC<Props> = ({navigation}) => {
     [chat],
   );
 
-  const changeChatMessage = useCallback(
-    (newMessage: Message, messageId: string) => {
-      const newChat = chat.map(message => message);
-
-      const changedMessagePosition = newChat.findIndex(
-        message => message.id === messageId,
-      );
-
-      newChat[changedMessagePosition] = newMessage;
-
-      setChat(newChat);
-    },
-    [chat],
-  );
-
-  const handleWebsockerMessage = useCallback(
-    (e: WebSocketMessageEvent) => {
-      try {
-        const message = JSON.parse(e.data);
-
-        if (message?.title) {
-          return changeTitle(message.title);
-        }
-
-        setLastMessage(undefined);
-
-        increaseChatNewMessages([userMessageFactory(chatMessage), message]);
-
-        setIsChatStarted(true);
-      } catch {
-        const message = userMessageFactory(e.data);
-
-        setLastMessage(assistantMessageFactory(message.content));
-      }
-    },
-    [
-      assistantMessageFactory,
-      changeTitle,
-      chatMessage,
-      increaseChatNewMessages,
-      userMessageFactory,
-    ],
-  );
-
-  const changeMessage = useCallback(
-    (e: WebSocketMessageEvent, messageId: string) => {
-      try {
-        const message = JSON.parse(e.data);
-
-        changeChatMessage(message, messageId);
-      } catch {
-        const message = assistantMessageFactory(e.data);
-
-        changeChatMessage(message, messageId);
-      }
-    },
-    [assistantMessageFactory, changeChatMessage],
-  );
-
-  const newMessageWebSocket = useCallback(() => {
-    if (!lastMessageId || !chatMessage) {
-      return;
-    }
-
-    setIsLoading(true);
-
-    //todo: create storage for anonymous_user_id
-
-    const messageWebSocket = new WebSocket(
-      `${process.env.GPT_API}/chats/${chatId}/messages/ws/?token=${userToken}`,
-    );
-
-    messageWebSocket.onopen = () => {
-      messageWebSocket.send(
-        JSON.stringify({
-          parentId: lastMessageId,
-          message: chatMessage,
-        }),
-      );
-    };
-
-    messageWebSocket.onmessage = handleWebsockerMessage;
-
-    // messageWebSocket.onerror = error => {
-    //   console.error('WebSocket error:', error);
-    // };
-
-    messageWebSocket.onclose = () => {
-      setLastMessage(undefined);
-
-      setIsLoading(false);
-    };
-
-    setWebSocket(messageWebSocket);
-
-    return () => {
-      if (messageWebSocket) {
-        messageWebSocket.close();
-      }
-    };
-  }, [chatId, chatMessage, handleWebsockerMessage, lastMessageId, userToken]);
-
-  const newChatWebSocket = useCallback(() => {
-    if (!chatMessage) {
-      return;
-    }
-
-    setIsLoading(true);
-
-    const messageWebSocket = new WebSocket(
-      `${process.env.GPT_API}/chats-ws/?token=${userToken}`,
-    );
-
-    messageWebSocket.onopen = () => {
-      messageWebSocket.send(
-        JSON.stringify({
-          message: chatMessage,
-        }),
-      );
-    };
-
-    messageWebSocket.onmessage = handleWebsockerMessage;
-
-    messageWebSocket.onerror = error => {
-      console.error('WebSocket error:', error);
-    };
-
-    messageWebSocket.onclose = () => {
-      setIsLoading(false);
-    };
-
-    setWebSocket(messageWebSocket);
-
-    return () => {
-      if (messageWebSocket) {
-        messageWebSocket.close();
-      }
-    };
-  }, [chatMessage, handleWebsockerMessage, userToken]);
-
-  const regenerateMessage = useCallback(
-    (messageId: string) => {
-      console.log('messageId: ', messageId);
-
-      setIsLoading(true);
-
-      const messageWebSocket = new WebSocket(
-        `${process.env.GPT_API}/chats/${chatId}/messages/${messageId}/ws/?token=${userToken}`,
-      );
-
-      messageWebSocket.onmessage = event => changeMessage(event, messageId);
-
-      messageWebSocket.onerror = error => {
-        console.error('WebSocket error:', error);
-      };
-
-      messageWebSocket.onclose = () => {
-        setIsLoading(false);
-      };
-
-      return () => {
-        if (messageWebSocket) {
-          messageWebSocket.close();
-        }
-      };
-    },
-    [changeMessage, chatId, userToken],
-  );
-
   const messageSender = useCallback(
-    async () =>
-      isChatStarted ? await newMessageWebSocket() : await newChatWebSocket(),
-    [isChatStarted, newChatWebSocket, newMessageWebSocket],
+    () =>
+      isChatStarted
+        ? newMessageWebSocket(
+            chatId as string,
+            userToken,
+            lastMessageId,
+            chatMessage,
+            chat,
+            setChat,
+            setLastMessage,
+            setIsChatStarted,
+            setWebSocket,
+            changeTitle,
+            setIsLoading,
+          )
+        : newChatWebSocket(
+            chatId as string,
+            userToken,
+            chatMessage,
+            chat,
+            setChat,
+            setLastMessage,
+            setIsChatStarted,
+            setWebSocket,
+            changeTitle,
+            setIsLoading,
+          ),
+    [
+      changeTitle,
+      chat,
+      chatId,
+      chatMessage,
+      isChatStarted,
+      lastMessageId,
+      userToken,
+    ],
   );
 
   const sendMessageAndCleanInput = useCallback(async () => {
@@ -304,22 +146,26 @@ const Chat: FC<Props> = ({navigation}) => {
   }, [chatMessage, messageSender, increaseChatNewMessages, userMessageFactory]);
 
   useEffect(() => {
-    inputRef.current?.focus();
-  }, []);
-
-  useEffect(() => {
     deleteChatEmittter.on(EVENTS.deletChat, excludeChat);
 
     regenerateMessageEmitter.on(
       REGENERATE_EVENTS.regenerateMessage,
-      regenerateMessage,
+      messageId =>
+        regenerateMessage(
+          messageId,
+          chat,
+          chatId as string,
+          userToken as string,
+          setChat,
+          setIsLoading,
+        ),
     );
 
     return () => {
       deleteChatEmittter.off(EVENTS.deletChat);
       regenerateMessageEmitter.off(REGENERATE_EVENTS.regenerateMessage);
     };
-  }, [excludeChat, regenerateMessage]);
+  }, [chat, chatId, excludeChat, userToken]);
 
   useEffect(() => {
     getToken();
@@ -350,7 +196,9 @@ const Chat: FC<Props> = ({navigation}) => {
       )}
 
       <Footer
-        action={isLoading ? stopWebSocket : sendMessageAndCleanInput}
+        action={
+          isLoading ? () => stopWebSocket(webSocket) : sendMessageAndCleanInput
+        }
         messageHandler={{
           chatMessage: chatMessage,
           setChatMessage: setChatMessage,

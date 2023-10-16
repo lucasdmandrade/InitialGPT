@@ -13,6 +13,18 @@ export const getChats = async () => {
   return chatsResponse.data.response;
 };
 
+export const getChatMessages = async (id: string) => {
+  const token = await getUserToken();
+
+  const chatsResponse = await gptApi.get(`/chats/${id}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  return chatsResponse.data.response;
+};
+
 export const newChat = async (chatMessage: string) => {
   return await gptApi.post(
     '/chats',

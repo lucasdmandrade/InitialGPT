@@ -6,3 +6,11 @@ export interface Message {
   id: string;
   parentId: string;
 }
+
+export interface Chat {
+  createdAt: string;
+  id: string;
+  lastUsedAt: string;
+  model: string;
+  title: string;
+}

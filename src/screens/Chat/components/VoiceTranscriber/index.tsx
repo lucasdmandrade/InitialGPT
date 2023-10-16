@@ -6,6 +6,7 @@ import Voice, {
 import {TouchableOpacity} from 'react-native-gesture-handler';
 import Microphone from '../../../../assets/icons/Microphone';
 import {OwnProps} from './types';
+import colors from '../../../../styles/Colors';
 
 const VoiceTranscriber: FC<OwnProps> = ({messageSetter}) => {
   const [isListening, setIsListening] = useState(false);
@@ -54,7 +55,7 @@ const VoiceTranscriber: FC<OwnProps> = ({messageSetter}) => {
 
   return (
     <TouchableOpacity onPress={toggleListening}>
-      <Microphone width={16} height={16} color={'#ffffffcc'} />
+      <Microphone width={16} height={16} color={colors.dark.whiteDark} />
     </TouchableOpacity>
   );
 };

@@ -3,6 +3,7 @@ import {StyleSheet, TextInput, View} from 'react-native';
 import {TouchableOpacity} from 'react-native-gesture-handler';
 import Arrow from '../../../../assets/icons/arrows/Arrow';
 import Maximize from '../../../../assets/icons/arrows/Maximize';
+import colors from '../../../../styles/Colors';
 import VoiceTranscriber from '../VoiceTranscriber';
 
 interface MessageHandler {
@@ -66,7 +67,7 @@ const Chat: FC<OwnProps> = ({
           ref={inputRef}
           style={styles.inputText}
           placeholder="Message"
-          placeholderTextColor="#ffffffcc"
+          placeholderTextColor={colors.dark.whiteDark}
           value={messageHandler.chatMessage}
           onChangeText={messageHandler.setChatMessage}
         />
@@ -75,7 +76,7 @@ const Chat: FC<OwnProps> = ({
       <View style={styles.inputButtonsContainerr}>
         {isOpenModalVisible && (
           <TouchableOpacity onPress={showModal}>
-            <Maximize width={22} height={22} color={'#ffffffcc'} />
+            <Maximize width={22} height={22} color={colors.dark.whiteDark} />
           </TouchableOpacity>
         )}
 
@@ -86,7 +87,12 @@ const Chat: FC<OwnProps> = ({
           {isLoading ? (
             <View style={styles.square} />
           ) : (
-            <Arrow width={24} height={24} color={'#ffffffcc'} direction="up" />
+            <Arrow
+              width={24}
+              height={24}
+              color={colors.dark.whiteDark}
+              direction="up"
+            />
           )}
         </TouchableOpacity>
       </View>
@@ -142,7 +148,7 @@ const styles = StyleSheet.create({
   square: {
     width: 15,
     height: 15,
-    backgroundColor: '#ffffffcc',
+    backgroundColor: colors.dark.whiteDark,
   },
   inputButtonsContainerr: {
     alignItems: 'center',

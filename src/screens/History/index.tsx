@@ -7,12 +7,13 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import {format, subDays, subMonths, isSameDay} from 'date-fns';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {RootStackParamList} from '../../services/navigation';
 import colors from '../../styles/Colors';
 import Arrow from '../../assets/icons/arrows/Arrow';
 import {getChats} from '../../api/chats';
+import formatDate from '../../utils/dates/formatDate';
+import groupByDay from '../../utils/dates/groupByDay';
 
 interface Chat {
   createdAt: string;
@@ -26,60 +27,6 @@ type Props = NativeStackScreenProps<RootStackParamList, 'History'>;
 
 const History: FC<Props> = ({navigation}) => {
   const [chats, setChats] = useState<Chat[]>();
-
-  const groupByDay = useCallback(
-    (array: Chat[]) => {
-      if (!chats?.length) {
-        return;
-      }
-
-      const grouped = [];
-
-      const ordenadoPorLastUsedAt = array
-        .slice()
-        .sort((a, b) => a.lastUsedAt.localeCompare(b.lastUsedAt));
-
-      let grupoAtual = [ordenadoPorLastUsedAt[0]];
-      for (let i = 1; i < ordenadoPorLastUsedAt.length; i++) {
-        if (ordenadoPorLastUsedAt[i].lastUsedAt === grupoAtual[0].lastUsedAt) {
-          grupoAtual.push(ordenadoPorLastUsedAt[i]);
-        } else {
-          grouped.push(grupoAtual);
-          grupoAtual = [ordenadoPorLastUsedAt[i]];
-        }
-      }
-      grouped.push(grupoAtual);
-
-      return grouped;
-    },
-    [chats?.length],
-  );
-
-  const formatDate = (dateString: string): string => {
-    const currentDate = new Date();
-    const targetDate = new Date(dateString);
-
-    if (isSameDay(currentDate, targetDate)) {
-      return 'Today';
-    }
-
-    const oneDayAgo = subDays(currentDate, 1);
-    if (isSameDay(oneDayAgo, targetDate)) {
-      return 'Yesterday';
-    }
-
-    const oneWeekAgo = subDays(currentDate, 7);
-    if (targetDate >= oneWeekAgo && targetDate < currentDate) {
-      return 'Previous 7 days';
-    }
-
-    const oneMonthAgo = subMonths(currentDate, 1);
-    if (targetDate >= oneMonthAgo && targetDate < currentDate) {
-      return 'Previous 30 days';
-    }
-
-    return format(targetDate, 'MMMM');
-  };
 
   const fetchChats = useCallback(async () => {
     try {
@@ -97,18 +44,19 @@ const History: FC<Props> = ({navigation}) => {
       lastUsedAt: formatDate(chat.lastUsedAt),
     }));
 
-    let teste;
+    let grouped;
 
     if (newChats?.length) {
-      teste = groupByDay(newChats);
+      grouped = groupByDay(newChats);
     }
 
-    return teste;
-  }, [chats, groupByDay]);
+    return grouped;
+  }, [chats]);
 
   useEffect(() => {
     fetchChats();
   }, [fetchChats]);
+
   return (
     <View style={styles.container}>
       <View style={styles.inputContatiner}>
@@ -119,7 +67,7 @@ const History: FC<Props> = ({navigation}) => {
         <TextInput
           style={styles.filterArea}
           placeholder="Search"
-          placeholderTextColor="#ffffffcc"
+          placeholderTextColor={colors.dark.whiteDark}
         />
       </View>
 
@@ -163,6 +111,7 @@ const styles = StyleSheet.create({
     flex: 1,
     width: '100%',
     paddingHorizontal: 10,
+    color: '#fff',
   },
   messagesContainer: {
     marginTop: 25,
@@ -179,7 +128,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   subtitle: {
-    color: '#ffffffcc',
+    color: colors.dark.darkFont,
     fontSize: 14,
   },
 });

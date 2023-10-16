@@ -7,7 +7,7 @@ interface Props {
   width: number;
   height: number;
   color: ColorValue;
-  direction: Directions;
+  direction?: Directions;
 }
 
 enum directions {
