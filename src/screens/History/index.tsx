@@ -28,6 +28,7 @@ interface Chat {
 type Props = NativeStackScreenProps<RootStackParamList, 'History'>;
 
 const History: FC<Props> = ({navigation}) => {
+  const [filter, setFilter] = useState('');
   const [chats, setChats] = useState<Chat[]>();
 
   const fetchChats = useCallback(async () => {
@@ -40,8 +41,21 @@ const History: FC<Props> = ({navigation}) => {
     }
   }, []);
 
+  const chatFilter = useCallback(
+    (arr?: Chat[]) => {
+      if (!filter.length) {
+        return arr;
+      }
+
+      const regex = new RegExp(filter, 'i');
+
+      return arr?.filter(element => regex.test(element.title));
+    },
+    [filter],
+  );
+
   const chatsSeparateByDate = useMemo(() => {
-    const newChats = chats?.map(chat => ({
+    const newChats = chatFilter(chats)?.map(chat => ({
       ...chat,
       lastUsedAt: formatDate(chat.lastUsedAt),
     }));
@@ -55,7 +69,7 @@ const History: FC<Props> = ({navigation}) => {
     console.log(grouped);
 
     return grouped;
-  }, [chats]);
+  }, [chatFilter, chats]);
 
   const goTo = useCallback(
     (id: string) => {
@@ -81,6 +95,8 @@ const History: FC<Props> = ({navigation}) => {
           style={styles.filterArea}
           placeholder="Search"
           placeholderTextColor={colors.dark.whiteDark}
+          value={filter}
+          onChangeText={setFilter}
         />
       </View>
 
