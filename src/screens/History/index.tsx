@@ -1,4 +1,4 @@
-import React, {FC, useCallback, useEffect, useMemo, useState} from 'react';
+import React, {FC, useCallback, useMemo, useState} from 'react';
 import {
   ScrollView,
   StyleSheet,
@@ -15,6 +15,7 @@ import {getChats} from '../../api/chats';
 import formatDate from '../../utils/dates/formatDate';
 import groupByDay from '../../utils/dates/groupByDay';
 import getChatEmittter, {EVENTS} from '../../services/events/GetChatEmitter';
+import {useFocusEffect} from '@react-navigation/native';
 
 interface Chat {
   createdAt: string;
@@ -65,9 +66,9 @@ const History: FC<Props> = ({navigation}) => {
     [navigation],
   );
 
-  useEffect(() => {
+  useFocusEffect(() => {
     fetchChats();
-  }, [fetchChats]);
+  });
 
   return (
     <View style={styles.container}>

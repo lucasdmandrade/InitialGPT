@@ -77,8 +77,13 @@ const Chat: FC<Props> = ({navigation}) => {
       deleteChat(chatId as string);
     } catch (e) {
       console.log(e);
+    } finally {
+      navigation.reset({
+        index: 0,
+        routes: [{name: 'Chat'}],
+      });
     }
-  }, [chatId]);
+  }, [chatId, navigation]);
 
   const getChat = useCallback(async (id: string) => {
     const reclaimedMessages = await getChatMessages(id);
@@ -149,9 +154,9 @@ const Chat: FC<Props> = ({navigation}) => {
     ],
   );
 
-  const sendMessageAndCleanInput = useCallback(async () => {
+  const sendMessageAndCleanInput = useCallback(() => {
     increaseChatNewMessages([userMessageFactory(chatMessage)]);
-    await messageSender();
+    messageSender();
 
     setChatMessage('');
   }, [chatMessage, messageSender, increaseChatNewMessages, userMessageFactory]);

@@ -4,13 +4,17 @@ import {getUserToken} from '../../services/storages/auth';
 export const getChats = async () => {
   const token = await getUserToken();
 
-  const chatsResponse = await gptApi.get('/chats', {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+  try {
+    const chatsResponse = await gptApi.get('/chats', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
 
-  return chatsResponse.data.response;
+    return chatsResponse.data.response;
+  } catch (e) {
+    console.log('getChats error: ', e);
+  }
 };
 
 export const getChatMessages = async (id: string) => {
@@ -25,7 +29,7 @@ export const getChatMessages = async (id: string) => {
 
     return chatsResponse.data.response;
   } catch (e) {
-    console.log('catch', e);
+    console.log('getChatMessages', e);
   }
 };
 
@@ -46,11 +50,15 @@ export const newChat = async (chatMessage: string) => {
 export const deleteChat = async (id: string) => {
   const token = await getUserToken();
 
-  return await gptApi.delete(`/chats/${id}`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+  try {
+    await gptApi.delete(`/chats/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  } catch (e) {
+    console.log('deleteChat error: ', e);
+  }
 };
 
 export const newMessage = async (chatMessage: string, id: string) => {
@@ -68,7 +76,20 @@ export const newMessage = async (chatMessage: string, id: string) => {
 };
 
 export const editTitle = async (id: string, title: string) => {
-  return await gptApi.patch(`/chats/${id}/?anonymous_user_id=AU-ABC123`, {
-    title,
-  });
+  const token = await getUserToken();
+  try {
+    await gptApi.patch(
+      `/chats/${id}`,
+      {
+        title,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
+  } catch (e) {
+    console.log('editTitle error: ', e);
+  }
 };
