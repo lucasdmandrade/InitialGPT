@@ -14,6 +14,7 @@ import Arrow from '../../assets/icons/arrows/Arrow';
 import {getChats} from '../../api/chats';
 import formatDate from '../../utils/dates/formatDate';
 import groupByDay from '../../utils/dates/groupByDay';
+import getChatEmittter, {EVENTS} from '../../services/events/GetChatEmitter';
 
 interface Chat {
   createdAt: string;
@@ -50,8 +51,19 @@ const History: FC<Props> = ({navigation}) => {
       grouped = groupByDay(newChats);
     }
 
+    console.log(grouped);
+
     return grouped;
   }, [chats]);
+
+  const goTo = useCallback(
+    (id: string) => {
+      getChatEmittter.emit(EVENTS.getChat, id);
+
+      navigation.navigate('Chat');
+    },
+    [navigation],
+  );
 
   useEffect(() => {
     fetchChats();
@@ -78,10 +90,13 @@ const History: FC<Props> = ({navigation}) => {
               <Text style={styles.time}>{chatDay[0].lastUsedAt}</Text>
 
               {chatDay.map(chat => (
-                <View style={styles.messagesContent}>
+                <TouchableOpacity
+                  style={styles.messagesContent}
+                  onPress={() => goTo(chat.id)}>
                   <Text style={styles.title}>{chat.title}</Text>
+
                   <Text style={styles.subtitle}>Subtitle</Text>
-                </View>
+                </TouchableOpacity>
               ))}
             </>
           </View>

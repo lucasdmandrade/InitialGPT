@@ -14,8 +14,6 @@ export const getUserToken = async () => {
   try {
     const token = await AsyncStorage.getItem('@AUTH_TOKEN');
 
-    console.log('Token resgatado com sucesso', token);
-
     return token;
   } catch (e) {
     // saving error

@@ -9,7 +9,7 @@ import EditTitleModal from './components/EditTitleModal';
 import deleteChatEmittter, {
   EVENTS,
 } from '../../services/events/DeletChatEmitter';
-import {deleteChat} from '../../api/chats';
+import {deleteChat, getChatMessages} from '../../api/chats';
 import {getUserToken} from '../../services/storages/auth';
 import Footer from './components/Footer';
 import regenerateMessageEmitter, {
@@ -22,6 +22,9 @@ import {
   regenerateMessage,
   stopWebSocket,
 } from '../../api/chatWebsocket';
+import getChatEmittter, {
+  EVENTS as GET_EVENT,
+} from '../../services/events/GetChatEmitter';
 
 interface Message {
   author: string;
@@ -35,23 +38,15 @@ interface Message {
 type Props = NativeStackScreenProps<RootStackParamList, 'Chat'>;
 
 const Chat: FC<Props> = ({navigation}) => {
-  const [chatTitle, setChatTitle] = useState('');
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [lastMessage, setLastMessage] = useState<Message>();
   const [isLoading, setIsLoading] = useState(false);
-  const [webSocket, setWebSocket] = useState<WebSocket>();
+  const [isChatStarted, setIsChatStarted] = useState(false);
   const [userToken, setUserToken] = useState('');
-
-  const getToken = useCallback(async () => {
-    const user = await getUserToken();
-
-    if (user) {
-      setUserToken(user);
-    }
-  }, []);
+  const [chatTitle, setChatTitle] = useState('');
+  const [lastMessage, setLastMessage] = useState<Message>();
+  const [webSocket, setWebSocket] = useState<WebSocket>();
 
   const [chatMessage, setChatMessage] = useState('');
-  const [isChatStarted, setIsChatStarted] = useState(false);
   const [chat, setChat] = useState<Message[]>([]);
 
   const lastMessageId = useMemo(() => chat.at(-1)?.id || '', [chat]);
@@ -61,6 +56,14 @@ const Chat: FC<Props> = ({navigation}) => {
     [chat, lastMessage],
   );
 
+  const getToken = useCallback(async () => {
+    const user = await getUserToken();
+
+    if (user) {
+      setUserToken(user);
+    }
+  }, []);
+
   const changeTitle = useCallback(
     (newTitle: string) => {
       setChatTitle(newTitle);
@@ -69,12 +72,20 @@ const Chat: FC<Props> = ({navigation}) => {
     [navigation],
   );
 
-  const excludeChat = useCallback((chatId: string) => {
+  const excludeChat = useCallback(() => {
     try {
-      deleteChat(chatId);
+      deleteChat(chatId as string);
     } catch (e) {
       console.log(e);
     }
+  }, [chatId]);
+
+  const getChat = useCallback(async (id: string) => {
+    const reclaimedMessages = await getChatMessages(id);
+
+    setIsChatStarted(true);
+
+    setChat(reclaimedMessages);
   }, []);
 
   const userMessageFactory = useCallback(
@@ -148,6 +159,8 @@ const Chat: FC<Props> = ({navigation}) => {
   useEffect(() => {
     deleteChatEmittter.on(EVENTS.deletChat, excludeChat);
 
+    getChatEmittter.on(GET_EVENT.getChat, getChat);
+
     regenerateMessageEmitter.on(
       REGENERATE_EVENTS.regenerateMessage,
       messageId =>
@@ -163,9 +176,10 @@ const Chat: FC<Props> = ({navigation}) => {
 
     return () => {
       deleteChatEmittter.off(EVENTS.deletChat);
+      getChatEmittter.off(GET_EVENT.getChat);
       regenerateMessageEmitter.off(REGENERATE_EVENTS.regenerateMessage);
     };
-  }, [chat, chatId, excludeChat, userToken]);
+  }, [chat, chatId, excludeChat, getChat, userToken]);
 
   useEffect(() => {
     getToken();
