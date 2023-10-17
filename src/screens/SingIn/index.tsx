@@ -37,9 +37,9 @@ const SingnIn = () => {
       if (token) {
         await setUserToken(token);
 
-        navigation.navigate('Chat');
+        initAppEmittter.emit(EVENTS.initApp);
 
-        //initAppEmittter.emit(EVENTS.initApp);
+        navigation.navigate('Chat');
       }
     } catch (error) {
       console.error('Erro ao fazer login com o Google', error);

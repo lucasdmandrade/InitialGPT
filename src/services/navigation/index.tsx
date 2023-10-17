@@ -62,7 +62,7 @@ const Stack = () => {
     await getUserToken()
       .then(token => {
         if (token) {
-          setIsLogged(true);
+          return setIsLogged(true);
         }
         setIsLogged(false);
       })
