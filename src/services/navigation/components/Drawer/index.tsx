@@ -18,7 +18,7 @@ const Drawer = props => {
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
 
   return (
-    <DrawerContentScrollView {...props}>
+    <DrawerContentScrollView>
       <View style={styles.conatiner}>
         <View style={{flexDirection: 'row'}}>
           <View style={styles.imageContainer}>

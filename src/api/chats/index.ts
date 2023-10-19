@@ -1,8 +1,9 @@
+import auth from '@react-native-firebase/auth';
 import gptApi from '../../services/axios/gptApi';
 import {getUserToken} from '../../services/storages/auth';
 
 export const getChats = async () => {
-  const token = await getUserToken();
+  const token = await auth().currentUser?.getIdToken();
 
   try {
     const chatsResponse = await gptApi.get('/chats', {
@@ -18,7 +19,7 @@ export const getChats = async () => {
 };
 
 export const getChatMessages = async (id: string) => {
-  const token = await getUserToken();
+  const token = await auth().currentUser?.getIdToken();
 
   try {
     const chatsResponse = await gptApi.get(`/chats/${id}/messages`, {
